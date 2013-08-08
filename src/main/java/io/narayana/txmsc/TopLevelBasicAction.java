@@ -41,8 +41,8 @@ public class TopLevelBasicAction extends BasicAction {
         return super.End(reportHeuristics);
     }
 
-    public String type ()
-    {
+    public String type() {
+
         return "/StateManager/TopLevelBasicAction";
     }
 }

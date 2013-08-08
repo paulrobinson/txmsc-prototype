@@ -36,6 +36,7 @@ public class BasicActionImporter {
     private static BasicActionImporter instance;
 
     public static BasicActionImporter getInstance() {
+
         if (instance == null) {
             instance = new BasicActionImporter();
         }
@@ -76,7 +77,7 @@ public class BasicActionImporter {
 
         //todo: consider this...
            /*if (!tx.activated())
-   		{
+           {
    			tx.recover();
 
    			return tx;
