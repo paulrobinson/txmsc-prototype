@@ -41,6 +41,7 @@ public class SubordinateTest {
         Integer id = 1;
         SubordinateBasicAction subordinateBasicAction =  BasicActionImporter.getInstance().importTransaction(id);
         ProxyBasicRecord proxyBasicRecord = new ProxyBasicRecord("proxy", subordinateBasicAction);
+
         ba1.add(proxyBasicRecord);
 
 

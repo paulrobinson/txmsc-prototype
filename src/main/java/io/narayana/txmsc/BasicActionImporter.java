@@ -56,6 +56,8 @@ public class BasicActionImporter {
             transactions.put(id, imported);
         }
 
+        //todo right place to begin?
+        imported.Begin(null);
         return imported;
     }
 
