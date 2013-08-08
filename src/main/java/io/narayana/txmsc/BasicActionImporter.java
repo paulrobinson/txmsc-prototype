@@ -52,12 +52,12 @@ public class BasicActionImporter {
 
         if (imported == null) {
             imported = new SubordinateBasicAction(id);
+            //todo right place to begin?
+            imported.Begin(null);
 
             transactions.put(id, imported);
         }
 
-        //todo right place to begin?
-        imported.Begin(null);
         return imported;
     }
 

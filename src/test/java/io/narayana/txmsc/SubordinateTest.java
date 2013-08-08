@@ -36,7 +36,9 @@ public class SubordinateTest {
         ba1.Begin(null);
 
         DummyBasicRecord dummyBasicRecord1 = new DummyBasicRecord("1");
+        DummyBasicRecord dummyBasicRecord2 = new DummyBasicRecord("2");
         ba1.add(dummyBasicRecord1);
+        ba1.add(dummyBasicRecord2);
 
         Integer id = 1;
         SubordinateBasicAction subordinateBasicAction =  BasicActionImporter.getInstance().importTransaction(id);
@@ -44,9 +46,10 @@ public class SubordinateTest {
 
         ba1.add(proxyBasicRecord);
 
-
-        DummyBasicRecord dummyBasicRecord2 = new DummyBasicRecord("2");
-        subordinateBasicAction.add(dummyBasicRecord2);
+        DummyBasicRecord dummySubRecord1 = new DummyBasicRecord("sub-1");
+        DummyBasicRecord dummySubRecord2 = new DummyBasicRecord("sub-2");
+        subordinateBasicAction.add(dummySubRecord1);
+        subordinateBasicAction.add(dummySubRecord2);
 
         ba1.End(true);
 
