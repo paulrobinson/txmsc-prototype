@@ -25,6 +25,8 @@ package io.narayana.txmsc;
 import com.arjuna.ats.arjuna.coordinator.AbstractRecord;
 import com.arjuna.ats.arjuna.coordinator.RecordType;
 import com.arjuna.ats.arjuna.coordinator.TwoPhaseOutcome;
+import com.arjuna.ats.arjuna.state.InputObjectState;
+import com.arjuna.ats.arjuna.state.OutputObjectState;
 
 /**
  * @author paul.robinson@redhat.com 07/08/2013
@@ -33,9 +35,17 @@ public class DummyBasicRecord extends AbstractRecord {
 
     String name;
 
+    boolean failCommit = false;
+
     public DummyBasicRecord(String name) {
 
         this.name = name;
+    }
+
+    public DummyBasicRecord(String name, boolean failCommit) {
+
+        this.name = name;
+        this.failCommit = failCommit;
     }
 
     @Override
@@ -96,6 +106,10 @@ public class DummyBasicRecord extends AbstractRecord {
     @Override
     public int topLevelCommit() {
 
+        if (failCommit) {
+            fail();
+        }
+
         log();
 
         return TwoPhaseOutcome.FINISH_OK;
@@ -155,10 +169,37 @@ public class DummyBasicRecord extends AbstractRecord {
         return false;
     }
 
+    public boolean doSave ()
+   	{
+   		return true;
+   	}
+
+    @Override
+    public boolean save_state(OutputObjectState os, int i) {
+
+        log();
+        return super.save_state(os, i);
+    }
+
+    @Override
+    public boolean restore_state(InputObjectState os, int i) {
+
+        log();
+        return super.restore_state(os, i);
+    }
+
     private void log() {
 
         final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
         String methodName = ste[2].getMethodName();
         System.out.println("DummyBasicRecord:" + name + ":" + methodName);
+    }
+
+    private void fail() {
+
+        final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+        String methodName = ste[2].getMethodName();
+        System.out.println("DummyBasicRecord:" + name + ":CRASH:" + methodName);
+        throw new Error("Intentional Error");
     }
 }

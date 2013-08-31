@@ -22,6 +22,8 @@
 
 package io.narayana.txmsc;
 
+import com.arjuna.ats.arjuna.common.Uid;
+
 import javax.transaction.xa.XAException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class BasicActionImporter {
 
-    private static Map<Integer, SubordinateBasicAction> transactions = new ConcurrentHashMap<Integer, SubordinateBasicAction>();
+    private static Map<Integer, Map<Uid, SubordinateTransaction>> transactions = new ConcurrentHashMap<Integer, Map<Uid, SubordinateTransaction>>();
 
     private static BasicActionImporter instance;
 
@@ -43,50 +45,27 @@ public class BasicActionImporter {
         return instance;
     }
 
-    public SubordinateBasicAction importTransaction(Integer id)
+    public SubordinateTransaction getSubordinateTransaction(Integer serverId, Uid parentTransactionUid)
             throws XAException {
 
-        if (id == null)
+        if (serverId == null || parentTransactionUid == null)
             throw new IllegalArgumentException();
 
-        SubordinateBasicAction imported = getImportedTransaction(id);
+        Map<Uid, SubordinateTransaction> subordinates = transactions.get(serverId);
+        if (subordinates == null) {
+            subordinates = new ConcurrentHashMap<Uid, SubordinateTransaction>();
+            transactions.put(serverId, subordinates);
+        }
 
+        SubordinateTransaction imported = subordinates.get(parentTransactionUid);
         if (imported == null) {
-            imported = new SubordinateBasicAction(id);
-            //todo right place to begin?
-            imported.Begin(null);
-
-            transactions.put(id, imported);
+            imported = new SubordinateTransaction(parentTransactionUid);
+            subordinates.put(parentTransactionUid, imported);
         }
 
         return imported;
     }
 
-    public SubordinateBasicAction getImportedTransaction(Integer id)
-            throws XAException {
-
-        if (id == null)
-            throw new IllegalArgumentException();
-
-        SubordinateBasicAction tx = transactions.get(id);
-
-        if (tx == null)
-            return null;
-
-        //todo: consider https://issues.jboss.org/browse/JBTM-927
-
-        //todo: consider this...
-           /*if (!tx.activated())
-           {
-   			tx.recover();
-
-   			return tx;
-   		}
-   		else
-   			return tx;*/
-
-        return tx;
-    }
 
     public void removeImportedTransaction(Integer id) throws XAException {
 
@@ -95,5 +74,7 @@ public class BasicActionImporter {
 
         transactions.remove(id);
     }
+
+
 
 }

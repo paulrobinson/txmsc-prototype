@@ -22,6 +22,9 @@
 
 package io.narayana.txmsc;
 
+import com.arjuna.ats.arjuna.common.Uid;
+import com.arjuna.ats.arjuna.coordinator.BasicAction;
+import io.narayana.txmsc.transport.ProxyBasicRecord;
 import org.junit.Test;
 
 /**
@@ -32,26 +35,28 @@ public class SubordinateTest {
     @Test
     public void testSimple() throws Exception {
 
-        TopLevelBasicAction ba1 = new TopLevelBasicAction();
-        ba1.Begin(null);
+        RootTransaction ba1 = new RootTransaction();
+        ba1.begin();
 
         DummyBasicRecord dummyBasicRecord1 = new DummyBasicRecord("1");
         DummyBasicRecord dummyBasicRecord2 = new DummyBasicRecord("2");
         ba1.add(dummyBasicRecord1);
         ba1.add(dummyBasicRecord2);
 
-        Integer id = 1;
-        SubordinateBasicAction subordinateBasicAction = BasicActionImporter.getInstance().importTransaction(id);
-        ProxyBasicRecord proxyBasicRecord = new ProxyBasicRecord("proxy", subordinateBasicAction);
+        Integer serverId = 1;
+        Uid rootTransactionUid = new Uid();
+        SubordinateTransaction subordinateTransaction = BasicActionImporter.getInstance().getSubordinateTransaction(serverId, rootTransactionUid);
+        subordinateTransaction.begin();
+        ProxyBasicRecord proxyBasicRecord = new ProxyBasicRecord("proxy", subordinateTransaction);
 
         ba1.add(proxyBasicRecord);
 
         DummyBasicRecord dummySubRecord1 = new DummyBasicRecord("sub-1");
-        DummyBasicRecord dummySubRecord2 = new DummyBasicRecord("sub-2");
-        subordinateBasicAction.add(dummySubRecord1);
-        subordinateBasicAction.add(dummySubRecord2);
+        DummyBasicRecord dummySubRecord2 = new DummyBasicRecord("sub-2", true);
+        subordinateTransaction.add(dummySubRecord1);
+        subordinateTransaction.add(dummySubRecord2);
 
-        ba1.End(true);
+        ba1.commit();
 
     }
 }

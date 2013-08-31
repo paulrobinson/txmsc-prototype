@@ -22,6 +22,7 @@
 
 package io.narayana.txmsc;
 
+import com.arjuna.ats.arjuna.common.Uid;
 import com.arjuna.ats.arjuna.coordinator.ActionStatus;
 import com.arjuna.ats.arjuna.coordinator.BasicAction;
 import com.arjuna.ats.arjuna.coordinator.TwoPhaseOutcome;
@@ -29,19 +30,18 @@ import com.arjuna.ats.arjuna.coordinator.TwoPhaseOutcome;
 /**
  * @author paul.robinson@redhat.com 07/08/2013
  */
-public class SubordinateBasicAction extends BasicAction {
+public class SubordinateTransaction extends BasicAction {
 
-    Integer id;
+    Uid parentTransactionUid;
 
-    public SubordinateBasicAction(Integer id) {
+    public SubordinateTransaction(Uid parentTransactionUid) {
 
-        this.id = id;
+        this.parentTransactionUid = parentTransactionUid;
     }
 
-    @Override
-    public synchronized int Begin(BasicAction parentAct) {
+    public int begin() {
 
-        return super.Begin(parentAct);
+        return super.Begin(null);
     }
 
     @Override
@@ -52,10 +52,10 @@ public class SubordinateBasicAction extends BasicAction {
 
     public String type() {
 
-        return "/StateManager/SubordinateBasicAction";
+        return "/StateManager/SubordinateTransaction";
     }
 
-    public int doPrepare() {
+    public int prepare() {
 
         int status = super.status();
 
@@ -73,7 +73,7 @@ public class SubordinateBasicAction extends BasicAction {
     }
 
 
-    public int doCommit() {
+    public int commit() {
 
         super.phase2Commit(true);
 
@@ -104,7 +104,7 @@ public class SubordinateBasicAction extends BasicAction {
         return toReturn;
     }
 
-    public int doRollback() {
+    public int rollback() {
 
         super.phase2Abort(true);
 

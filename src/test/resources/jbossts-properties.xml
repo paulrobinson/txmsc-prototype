@@ -80,8 +80,7 @@
          deployments.
     -->
     <entry key="RecoveryEnvironmentBean.recoveryModuleClassNames">
-        com.arjuna.ats.internal.arjuna.recovery.AtomicActionRecoveryModule
-        com.arjuna.ats.internal.txoj.recovery.TORecoveryModule
+        io.narayana.txmsc.RootTransactionRecoveryModule
     </entry>
 
     <!-- Expiry scanners to use (order of invocation is random). -->

@@ -6,7 +6,7 @@
 
     <groupId>txmsc-prototype</groupId>
     <artifactId>txmsc-prototype</artifactId>
-    <version>5.0.0.M4-SNAPSHOT</version>
+    <version>5.0.0.M5-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

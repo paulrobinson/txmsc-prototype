@@ -27,22 +27,21 @@ import com.arjuna.ats.arjuna.coordinator.BasicAction;
 /**
  * @author paul.robinson@redhat.com 07/08/2013
  */
-public class TopLevelBasicAction extends BasicAction {
+public class RootTransaction extends BasicAction {
 
-    @Override
-    public synchronized int Begin(BasicAction parentAct) {
+    public int begin() {
 
-        return super.Begin(parentAct);
+        return super.Begin(null);
     }
 
-    @Override
-    protected synchronized int End(boolean reportHeuristics) {
+    protected int commit() {
 
-        return super.End(reportHeuristics);
+        //todo: do we want to report heuristics?
+        return super.End(true);
     }
 
     public String type() {
 
-        return "/StateManager/TopLevelBasicAction";
+        return "/StateManager/RootTransaction";
     }
 }

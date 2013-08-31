@@ -20,11 +20,12 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package io.narayana.txmsc;
+package io.narayana.txmsc.transport;
 
 import com.arjuna.ats.arjuna.coordinator.AbstractRecord;
 import com.arjuna.ats.arjuna.coordinator.RecordType;
 import com.arjuna.ats.arjuna.coordinator.TwoPhaseOutcome;
+import io.narayana.txmsc.SubordinateTransaction;
 
 /**
  * @author paul.robinson@redhat.com 07/08/2013
@@ -32,13 +33,13 @@ import com.arjuna.ats.arjuna.coordinator.TwoPhaseOutcome;
 public class ProxyBasicRecord extends AbstractRecord {
 
     private String name;
-    private SubordinateBasicAction subordinateBasicAction;
+    private SubordinateTransaction subordinateTransaction;
 
 
-    public ProxyBasicRecord(String name, SubordinateBasicAction subordinateBasicAction) {
+    public ProxyBasicRecord(String name, SubordinateTransaction subordinateTransaction) {
 
         this.name = name;
-        this.subordinateBasicAction = subordinateBasicAction;
+        this.subordinateTransaction = subordinateTransaction;
 
     }
 
@@ -95,7 +96,7 @@ public class ProxyBasicRecord extends AbstractRecord {
     public int topLevelAbort() {
 
         log();
-        return subordinateBasicAction.doRollback();
+        return subordinateTransaction.rollback();
     }
 
     @Override
@@ -103,7 +104,7 @@ public class ProxyBasicRecord extends AbstractRecord {
 
         log();
 
-        return subordinateBasicAction.doCommit();
+        return subordinateTransaction.commit();
     }
 
     @Override
@@ -111,7 +112,7 @@ public class ProxyBasicRecord extends AbstractRecord {
 
         log();
 
-        return subordinateBasicAction.doPrepare();
+        return subordinateTransaction.prepare();
     }
 
     @Override
