@@ -32,6 +32,9 @@ public class RecoveryExample {
         ba1.add(dummyBasicRecord1);
         ba1.add(dummyBasicRecord2);
 
+        dummyBasicRecord1.setNewValue("newVal1");
+        dummyBasicRecord2.setNewValue("newVal2");
+
         ba1.commit();
     }
 

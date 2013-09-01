@@ -27,7 +27,7 @@ public class RecoverRootTransaction extends RootTransaction {
     public void replayPhase2() {
 
         if (tsLogger.logger.isDebugEnabled()) {
-            tsLogger.logger.debug("RecoverAtomicAction.replayPhase2 recovering " + get_uid() + " ActionStatus is " + ActionStatus.stringForm(_theStatus));
+            tsLogger.logger.debug("RecoverRootTransaction.replayPhase2 recovering " + get_uid() + " ActionStatus is " + ActionStatus.stringForm(_theStatus));
         }
 
         if (_activated) {
@@ -48,7 +48,7 @@ public class RecoverRootTransaction extends RootTransaction {
             }
 
             if (tsLogger.logger.isDebugEnabled()) {
-                tsLogger.logger.debug("RecoverAtomicAction.replayPhase2( " + get_uid() + " )  finished");
+                tsLogger.logger.debug("RecoverRootTransaction.replayPhase2( " + get_uid() + " )  finished");
             }
         } else {
             tsLogger.i18NLogger.warn_recovery_RecoverAtomicAction_4(get_uid());

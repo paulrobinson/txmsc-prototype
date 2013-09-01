@@ -28,16 +28,21 @@ import com.arjuna.ats.arjuna.coordinator.TwoPhaseOutcome;
 import com.arjuna.ats.arjuna.state.InputObjectState;
 import com.arjuna.ats.arjuna.state.OutputObjectState;
 
+import java.io.IOException;
+
 /**
  * @author paul.robinson@redhat.com 07/08/2013
  */
 public class DummyBasicRecord extends AbstractRecord {
 
-    String name;
+    private String name;
 
-    boolean failCommit = false;
+    private boolean failCommit = false;
+
+    private String newValue;
 
     public DummyBasicRecord() {
+
         this.name = "recovery";
     }
 
@@ -50,6 +55,11 @@ public class DummyBasicRecord extends AbstractRecord {
 
         this.name = name;
         this.failCommit = failCommit;
+    }
+
+    public void setNewValue(String newValue) {
+
+        this.newValue = newValue;
     }
 
     @Override
@@ -75,6 +85,7 @@ public class DummyBasicRecord extends AbstractRecord {
         log();
         //todo: is this linked to the "value" method?
     }
+
 
     @Override
     public int nestedAbort() {
@@ -114,7 +125,7 @@ public class DummyBasicRecord extends AbstractRecord {
             fail();
         }
 
-        log();
+        log("newValue:" + newValue);
 
         return TwoPhaseOutcome.FINISH_OK;
     }
@@ -173,30 +184,59 @@ public class DummyBasicRecord extends AbstractRecord {
         return false;
     }
 
-    public boolean doSave ()
-   	{
-   		return true;
-   	}
+    public boolean doSave() {
+
+        return true;
+    }
 
     @Override
     public boolean save_state(OutputObjectState os, int i) {
 
         log();
-        return super.save_state(os, i);
+
+        if (!super.save_state(os, i)) {
+            return false;
+        }
+
+        try {
+            os.packString(newValue);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
     }
 
     @Override
     public boolean restore_state(InputObjectState os, int i) {
 
         log();
-        return super.restore_state(os, i);
+
+        if (!super.restore_state(os, i)) {
+            return false;
+        }
+
+        try {
+            newValue = os.unpackString();
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
     }
 
-    private void log() {
+    private void log(String... additionalMsg) {
 
         final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
         String methodName = ste[2].getMethodName();
-        System.out.println("DummyBasicRecord:" + name + ":" + methodName);
+
+        String message = "DummyBasicRecord:" + name + ":" + methodName;
+
+        if (additionalMsg.length > 0) {
+            message += ":" + additionalMsg[0];
+        }
+
+        System.out.println(message);
     }
 
     private void fail() {
