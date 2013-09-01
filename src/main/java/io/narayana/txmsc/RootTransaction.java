@@ -22,12 +22,30 @@
 
 package io.narayana.txmsc;
 
+import com.arjuna.ats.arjuna.common.Uid;
 import com.arjuna.ats.arjuna.coordinator.BasicAction;
 
 /**
+ * Need to extend BasicAction as BasicAction's Begin and End methods are protected.
+ *
+ * Why can't we just use AtomicAction for this?
+ *  It does thread association that we don't need.
+ *  Does this really matter, currently looks like it will save a lot of code as AtomicActionRecoveryModule can't
+ *  easily be extended.
+ *
+ *
  * @author paul.robinson@redhat.com 07/08/2013
  */
 public class RootTransaction extends BasicAction {
+
+    public RootTransaction() {
+        super();
+    }
+
+    public RootTransaction(Uid objUid) {
+
+        super(objUid);
+    }
 
     public int begin() {
 

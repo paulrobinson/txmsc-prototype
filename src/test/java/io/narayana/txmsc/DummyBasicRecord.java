@@ -37,6 +37,10 @@ public class DummyBasicRecord extends AbstractRecord {
 
     boolean failCommit = false;
 
+    public DummyBasicRecord() {
+        this.name = "recovery";
+    }
+
     public DummyBasicRecord(String name) {
 
         this.name = name;

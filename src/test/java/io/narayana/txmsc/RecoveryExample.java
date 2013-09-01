@@ -1,6 +1,7 @@
 package io.narayana.txmsc;
 
 import com.arjuna.ats.arjuna.common.Uid;
+import com.arjuna.ats.arjuna.coordinator.abstractrecord.RecordTypeManager;
 import io.narayana.txmsc.transport.ProxyBasicRecord;
 
 /**
@@ -35,10 +36,14 @@ public class RecoveryExample {
     }
 
     private static void recoverTransaction() throws Exception {
+
+        DummyBasicRecordTypeMap map = new DummyBasicRecordTypeMap();
+        RecordTypeManager.manager().add(map);
+
         RecoverySetup.startRecovery();
         RecoverySetup.runRecoveryScan();
 
-        Thread.sleep(10000);
+        Thread.sleep(5000);
     }
 
 }
