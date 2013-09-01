@@ -29,6 +29,8 @@ import com.arjuna.ats.arjuna.state.InputObjectState;
 import com.arjuna.ats.arjuna.state.OutputObjectState;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author paul.robinson@redhat.com 07/08/2013
@@ -39,6 +41,9 @@ public class DummyBasicRecord extends AbstractRecord {
 
     private boolean failCommit = false;
 
+    private static Map<String, String> persistedValues = new HashMap<String, String>();
+
+    private String key;
     private String newValue;
 
     public DummyBasicRecord() {
@@ -57,9 +62,19 @@ public class DummyBasicRecord extends AbstractRecord {
         this.failCommit = failCommit;
     }
 
-    public void setNewValue(String newValue) {
+    public void setNewValue(String key, String newValue) {
 
+        this.key = key;
         this.newValue = newValue;
+    }
+
+    public static String getPersistedValue(String key) {
+
+        return persistedValues.get(key);
+    }
+
+    public static void reset() {
+        persistedValues = new HashMap<String, String>();
     }
 
     @Override
@@ -125,7 +140,8 @@ public class DummyBasicRecord extends AbstractRecord {
             fail();
         }
 
-        log("newValue:" + newValue);
+        log("newValue:" + key + "=" + newValue);
+        persistedValues.put(key, newValue);
 
         return TwoPhaseOutcome.FINISH_OK;
     }
@@ -199,6 +215,7 @@ public class DummyBasicRecord extends AbstractRecord {
         }
 
         try {
+            os.packString(key);
             os.packString(newValue);
         } catch (IOException e) {
             e.printStackTrace();
@@ -218,6 +235,7 @@ public class DummyBasicRecord extends AbstractRecord {
         }
 
         try {
+            key = os.unpackString();
             newValue = os.unpackString();
         } catch (IOException e) {
             return false;

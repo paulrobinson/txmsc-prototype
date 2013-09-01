@@ -1,8 +1,6 @@
 package io.narayana.txmsc;
 
-import com.arjuna.ats.arjuna.common.Uid;
 import com.arjuna.ats.arjuna.coordinator.abstractrecord.RecordTypeManager;
-import io.narayana.txmsc.transport.ProxyBasicRecord;
 
 /**
  * @author paul.robinson@redhat.com 08/08/2013
@@ -15,6 +13,10 @@ public class RecoveryExample {
             runTransaction();
         }
         else if (args[0].equals("--recover")) {
+            recoverTransaction();
+        }
+        else if (args[0].equals("--both")) {
+            runTransaction();
             recoverTransaction();
         }
         else {
@@ -32,10 +34,14 @@ public class RecoveryExample {
         ba1.add(dummyBasicRecord1);
         ba1.add(dummyBasicRecord2);
 
-        dummyBasicRecord1.setNewValue("newVal1");
-        dummyBasicRecord2.setNewValue("newVal2");
+        dummyBasicRecord1.setNewValue("1", "newVal1");
+        dummyBasicRecord2.setNewValue("2", "newVal2");
 
-        ba1.commit();
+        try {
+            ba1.commit();
+        } catch (Error e) {
+            System.out.println("Server crashed, as expected");
+        }
     }
 
     private static void recoverTransaction() throws Exception {
@@ -47,6 +53,9 @@ public class RecoveryExample {
         RecoverySetup.runRecoveryScan();
 
         Thread.sleep(5000);
+
+        System.out.println(DummyBasicRecord.getPersistedValue("1"));
+        System.out.println(DummyBasicRecord.getPersistedValue("2"));
     }
 
 }
