@@ -74,17 +74,99 @@ public class DummyBasicRecord extends AbstractRecord {
     }
 
     public static void reset() {
+
         persistedValues = new HashMap<String, String>();
     }
+
+
+    @Override
+    public boolean save_state(OutputObjectState os, int i) {
+
+        log();
+
+        if (!super.save_state(os, i)) {
+            return false;
+        }
+
+        try {
+            os.packString(key);
+            os.packString(newValue);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean restore_state(InputObjectState os, int i) {
+
+        log();
+
+        if (!super.restore_state(os, i)) {
+            return false;
+        }
+
+        try {
+            key = os.unpackString();
+            newValue = os.unpackString();
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int topLevelCommit() {
+
+        if (failCommit) {
+            fail();
+        }
+
+        log("newValue:" + key + "=" + newValue);
+        persistedValues.put(key, newValue);
+
+        return TwoPhaseOutcome.FINISH_OK;
+    }
+
 
     @Override
     public int typeIs() {
 
         log();
 
-        //todo: what should this be?
-        return RecordType.USER_DEF_FIRST8;
+        return RecordType.USER_DEF_FIRST0;
     }
+
+
+    private void log(String... additionalMsg) {
+
+        final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+        String methodName = ste[2].getMethodName();
+
+        String message = "DummyBasicRecord:" + name + ":" + methodName;
+
+        if (additionalMsg.length > 0) {
+            message += ":" + additionalMsg[0];
+        }
+
+        System.out.println(message);
+    }
+
+    private void fail() {
+
+        final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+        String methodName = ste[2].getMethodName();
+        System.out.println("DummyBasicRecord:" + name + ":CRASH:" + methodName);
+        throw new Error("Intentional Error");
+    }
+
+
+    /*
+     * Nothing too interesting below
+     */
+
 
     @Override
     public Object value() {
@@ -130,19 +212,6 @@ public class DummyBasicRecord extends AbstractRecord {
     public int topLevelAbort() {
 
         log();
-        return TwoPhaseOutcome.FINISH_OK;
-    }
-
-    @Override
-    public int topLevelCommit() {
-
-        if (failCommit) {
-            fail();
-        }
-
-        log("newValue:" + key + "=" + newValue);
-        persistedValues.put(key, newValue);
-
         return TwoPhaseOutcome.FINISH_OK;
     }
 
@@ -203,65 +272,5 @@ public class DummyBasicRecord extends AbstractRecord {
     public boolean doSave() {
 
         return true;
-    }
-
-    @Override
-    public boolean save_state(OutputObjectState os, int i) {
-
-        log();
-
-        if (!super.save_state(os, i)) {
-            return false;
-        }
-
-        try {
-            os.packString(key);
-            os.packString(newValue);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean restore_state(InputObjectState os, int i) {
-
-        log();
-
-        if (!super.restore_state(os, i)) {
-            return false;
-        }
-
-        try {
-            key = os.unpackString();
-            newValue = os.unpackString();
-        } catch (IOException e) {
-            return false;
-        }
-        return true;
-    }
-
-    private void log(String... additionalMsg) {
-
-        final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-        String methodName = ste[2].getMethodName();
-
-        String message = "DummyBasicRecord:" + name + ":" + methodName;
-
-        if (additionalMsg.length > 0) {
-            message += ":" + additionalMsg[0];
-        }
-
-        System.out.println(message);
-    }
-
-    private void fail() {
-
-        final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-        String methodName = ste[2].getMethodName();
-        System.out.println("DummyBasicRecord:" + name + ":CRASH:" + methodName);
-        throw new Error("Intentional Error");
     }
 }

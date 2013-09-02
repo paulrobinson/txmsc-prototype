@@ -40,7 +40,7 @@ public class RecoveryExample {
         try {
             ba1.commit();
         } catch (Error e) {
-            System.out.println("Server crashed, as expected");
+            System.out.println("Server simulated a crashed, as expected");
         }
     }
 

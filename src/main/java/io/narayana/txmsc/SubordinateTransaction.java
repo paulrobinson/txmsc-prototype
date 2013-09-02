@@ -24,6 +24,7 @@ package io.narayana.txmsc;
 
 import com.arjuna.ats.arjuna.common.Uid;
 import com.arjuna.ats.arjuna.coordinator.ActionStatus;
+import com.arjuna.ats.arjuna.coordinator.ActionType;
 import com.arjuna.ats.arjuna.coordinator.BasicAction;
 import com.arjuna.ats.arjuna.coordinator.TwoPhaseOutcome;
 
@@ -32,10 +33,12 @@ import com.arjuna.ats.arjuna.coordinator.TwoPhaseOutcome;
  */
 public class SubordinateTransaction extends BasicAction {
 
+    //todo: not needed?
     Uid parentTransactionUid;
 
     public SubordinateTransaction(Uid parentTransactionUid) {
 
+        super(ActionType.TOP_LEVEL);
         this.parentTransactionUid = parentTransactionUid;
     }
 
@@ -44,17 +47,12 @@ public class SubordinateTransaction extends BasicAction {
         return super.Begin(null);
     }
 
-    @Override
-    protected synchronized int End(boolean reportHeuristics) {
-
-        return super.End(reportHeuristics);
-    }
-
     public String type() {
 
         return "/StateManager/SubordinateTransaction";
     }
 
+    //todo: do just: return super.prepare(true);
     public int prepare() {
 
         int status = super.status();
@@ -73,6 +71,7 @@ public class SubordinateTransaction extends BasicAction {
     }
 
 
+    //todo: return super().status
     public int commit() {
 
         super.phase2Commit(true);
@@ -104,6 +103,7 @@ public class SubordinateTransaction extends BasicAction {
         return toReturn;
     }
 
+    //todo: return super().status
     public int rollback() {
 
         super.phase2Abort(true);

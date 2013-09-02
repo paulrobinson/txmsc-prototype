@@ -18,6 +18,7 @@ public class DummyBasicRecordTypeMap implements RecordTypeMap {
     @Override
     public int getType() {
 
-        return RecordType.USER_DEF_FIRST8;
+        //todo: add comment...
+        return RecordType.USER_DEF_FIRST0;
     }
 }

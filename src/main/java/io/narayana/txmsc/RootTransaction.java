@@ -23,11 +23,15 @@
 package io.narayana.txmsc;
 
 import com.arjuna.ats.arjuna.common.Uid;
+import com.arjuna.ats.arjuna.coordinator.ActionType;
 import com.arjuna.ats.arjuna.coordinator.BasicAction;
 
 /**
  * Need to extend BasicAction as BasicAction's Begin and End methods are protected.
  *
+ * Why can't BasicAction be made non-abstract
+ * Can we use TwoPhaseCoordinator?
+ *  Yes, but supports nesting which could cause problems.
  * Why can't we just use AtomicAction for this?
  *  It does thread association that we don't need.
  *  Does this really matter, currently looks like it will save a lot of code as AtomicActionRecoveryModule can't
@@ -39,12 +43,12 @@ import com.arjuna.ats.arjuna.coordinator.BasicAction;
 public class RootTransaction extends BasicAction {
 
     public RootTransaction() {
-        super();
+        super(ActionType.TOP_LEVEL);
     }
 
     public RootTransaction(Uid objUid) {
 
-        super(objUid);
+        super(objUid, ActionType.TOP_LEVEL);
     }
 
     public int begin() {
@@ -56,6 +60,10 @@ public class RootTransaction extends BasicAction {
 
         //todo: do we want to report heuristics?
         return super.End(true);
+    }
+
+    protected int rollback() {
+        return super.Abort();
     }
 
     public String type() {

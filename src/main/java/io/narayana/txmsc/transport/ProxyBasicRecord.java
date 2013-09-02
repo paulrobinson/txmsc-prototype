@@ -48,8 +48,8 @@ public class ProxyBasicRecord extends AbstractRecord {
 
         log();
 
-        //todo: what should this be?
-        return RecordType.USER_DEF_FIRST9;
+        //todo: Document
+        return RecordType.USER_DEF_FIRST0;
     }
 
     @Override
