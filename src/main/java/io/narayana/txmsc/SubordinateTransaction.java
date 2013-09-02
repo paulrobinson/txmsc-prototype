@@ -42,97 +42,31 @@ public class SubordinateTransaction extends BasicAction {
         this.parentTransactionUid = parentTransactionUid;
     }
 
-    public int begin() {
-
-        return super.Begin(null);
-    }
-
     public String type() {
 
         return "/StateManager/SubordinateTransaction";
     }
 
-    //todo: do just: return super.prepare(true);
-    public int prepare() {
+    public int begin() {
 
-        int status = super.status();
-
-        // Could this have been aborted by the TransactionReaper?
-        if (status == ActionStatus.ABORTED) {
-            return TwoPhaseOutcome.PREPARE_NOTOK;
-        }
-
-        if (!(status == ActionStatus.ABORT_ONLY || status == ActionStatus.ABORTING)) {
-            return super.prepare(true);
-        } else {
-            super.phase2Abort(true);
-            return TwoPhaseOutcome.PREPARE_NOTOK;
-        }
+        return super.Begin(null);
     }
 
+    public int prepare() {
 
-    //todo: return super().status
+        return super.prepare(true);
+    }
+
     public int commit() {
 
         super.phase2Commit(true);
-
-        int toReturn;
-
-        switch (super.getHeuristicDecision()) {
-            case TwoPhaseOutcome.PREPARE_OK:
-            case TwoPhaseOutcome.FINISH_OK:
-                toReturn = super.status();
-                break;
-            case TwoPhaseOutcome.HEURISTIC_ROLLBACK:
-                toReturn = ActionStatus.H_ROLLBACK;
-                break;
-            case TwoPhaseOutcome.HEURISTIC_COMMIT:
-                toReturn = ActionStatus.H_COMMIT;
-                break;
-            case TwoPhaseOutcome.HEURISTIC_MIXED:
-                toReturn = ActionStatus.H_MIXED;
-                break;
-            case TwoPhaseOutcome.HEURISTIC_HAZARD:
-            default:
-                toReturn = ActionStatus.H_HAZARD;
-                break;
-        }
-
-        //todo remove from reaper here if required.
-
-        return toReturn;
+        return super.status();
     }
 
-    //todo: return super().status
     public int rollback() {
 
         super.phase2Abort(true);
-
-        int toReturn;
-
-        switch (super.getHeuristicDecision()) {
-            case TwoPhaseOutcome.PREPARE_OK:
-            case TwoPhaseOutcome.FINISH_OK:
-                toReturn = super.status();
-                break;
-            case TwoPhaseOutcome.HEURISTIC_ROLLBACK:
-                toReturn = ActionStatus.H_ROLLBACK;
-                break;
-            case TwoPhaseOutcome.HEURISTIC_COMMIT:
-                toReturn = ActionStatus.H_COMMIT;
-                break;
-            case TwoPhaseOutcome.HEURISTIC_MIXED:
-                toReturn = ActionStatus.H_MIXED;
-                break;
-            case TwoPhaseOutcome.HEURISTIC_HAZARD:
-            default:
-                toReturn = ActionStatus.H_HAZARD;
-                break;
-        }
-
-        //todo remove from reaper here if required.
-
-        return toReturn;
+        return super.status();
     }
 
 }
