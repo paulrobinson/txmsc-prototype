@@ -28,21 +28,21 @@ import com.arjuna.ats.arjuna.coordinator.BasicAction;
 
 /**
  * Need to extend BasicAction as BasicAction's Begin and End methods are protected.
- *
+ * <p/>
  * Why can't BasicAction be made non-abstract
  * Can we use TwoPhaseCoordinator?
- *  Yes, but supports nesting which could cause problems.
+ * Yes, but supports nesting which could cause problems.
  * Why can't we just use AtomicAction for this?
- *  It does thread association that we don't need.
- *  Does this really matter, currently looks like it will save a lot of code as AtomicActionRecoveryModule can't
- *  easily be extended.
- *
+ * It does thread association that we don't need.
+ * Does this really matter, currently looks like it will save a lot of code as AtomicActionRecoveryModule can't
+ * easily be extended.
  *
  * @author paul.robinson@redhat.com 07/08/2013
  */
 public class RootTransaction extends BasicAction {
 
     public RootTransaction() {
+
         super(ActionType.TOP_LEVEL);
     }
 
@@ -63,6 +63,7 @@ public class RootTransaction extends BasicAction {
     }
 
     protected int rollback() {
+
         return super.Abort();
     }
 

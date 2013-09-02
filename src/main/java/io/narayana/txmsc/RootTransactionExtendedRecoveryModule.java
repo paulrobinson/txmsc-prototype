@@ -8,7 +8,7 @@ import com.arjuna.ats.internal.arjuna.recovery.AtomicActionRecoveryModule;
  */
 public class RootTransactionExtendedRecoveryModule extends AtomicActionRecoveryModule {
 
-    private String _transactionType = new RootTransaction().type() ;
+    private String _transactionType = new RootTransaction().type();
 
     public String get_transactionType() {
 
@@ -22,9 +22,10 @@ public class RootTransactionExtendedRecoveryModule extends AtomicActionRecoveryM
 
     @Override
     protected void replayPhase2(Uid recoverUid, int theStatus) {
-        RecoverRootTransaction rcvRootTransaction =
-           new RecoverRootTransaction( recoverUid, theStatus ) ;
 
-        rcvRootTransaction.replayPhase2() ;
+        RecoverRootTransaction rcvRootTransaction =
+                new RecoverRootTransaction(recoverUid, theStatus);
+
+        rcvRootTransaction.replayPhase2();
     }
 }

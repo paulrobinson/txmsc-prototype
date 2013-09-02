@@ -23,7 +23,6 @@
 package io.narayana.txmsc;
 
 import com.arjuna.ats.arjuna.common.Uid;
-import com.arjuna.ats.arjuna.coordinator.BasicAction;
 import io.narayana.txmsc.transport.ProxyBasicRecord;
 import org.junit.Test;
 

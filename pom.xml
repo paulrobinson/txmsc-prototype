@@ -10,14 +10,14 @@
 
     <dependencies>
         <dependency>
-          <groupId>org.jboss.narayana</groupId>
-          <artifactId>common</artifactId>
-          <version>${project.version}</version>
+            <groupId>org.jboss.narayana</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-          <groupId>org.jboss.narayana.arjunacore</groupId>
-          <artifactId>arjuna</artifactId>
-          <version>${project.version}</version>
+            <groupId>org.jboss.narayana.arjunacore</groupId>
+            <artifactId>arjuna</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -25,5 +25,5 @@
             <version>4.11</version>
         </dependency>
     </dependencies>
-    
+
 </project>

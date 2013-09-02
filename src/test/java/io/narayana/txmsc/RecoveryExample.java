@@ -7,20 +7,17 @@ import com.arjuna.ats.arjuna.coordinator.abstractrecord.RecordTypeManager;
  */
 public class RecoveryExample {
 
-    public static void main(String[] args) throws Exception  {
+    public static void main(String[] args) throws Exception {
 
         if (args.length == 0) {
             runTransaction();
-        }
-        else if (args[0].equals("--recover")) {
+        } else if (args[0].equals("--recover")) {
             recoverTransaction();
-        }
-        else if (args[0].equals("--both")) {
+        } else if (args[0].equals("--both")) {
             runTransaction();
             recoverTransaction();
-        }
-        else {
-            System.err.println("Unexpected arg: "+ args[0]);
+        } else {
+            System.err.println("Unexpected arg: " + args[0]);
         }
     }
 
