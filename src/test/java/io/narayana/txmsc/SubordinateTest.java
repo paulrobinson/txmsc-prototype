@@ -24,6 +24,7 @@ package io.narayana.txmsc;
 
 import com.arjuna.ats.arjuna.common.Uid;
 import io.narayana.txmsc.transport.ProxyBasicRecord;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -42,6 +43,12 @@ public class SubordinateTest {
         ba1.add(dummyBasicRecord1);
         ba1.add(dummyBasicRecord2);
 
+        dummyBasicRecord1.setNewValue("1", "newVal1");
+        dummyBasicRecord2.setNewValue("2", "newVal2");
+
+        Assert.assertEquals(null, DummyBasicRecord.getPersistedValue("1"));
+        Assert.assertEquals(null, DummyBasicRecord.getPersistedValue("2"));
+
         Integer serverId = 1;
         Uid rootTransactionUid = new Uid();
         SubordinateTransaction subordinateTransaction = BasicActionImporter.getInstance().getSubordinateTransaction(serverId, rootTransactionUid);
@@ -55,7 +62,18 @@ public class SubordinateTest {
         subordinateTransaction.add(dummySubRecord1);
         subordinateTransaction.add(dummySubRecord2);
 
+        dummySubRecord1.setNewValue("sub-1", "sub-newVal1");
+        dummySubRecord2.setNewValue("sub-2", "sub-newVal2");
+
+        Assert.assertEquals(null, DummyBasicRecord.getPersistedValue("sub-1"));
+        Assert.assertEquals(null, DummyBasicRecord.getPersistedValue("sub-2"));
+
         ba1.commit();
+
+        Assert.assertEquals("newVal1", DummyBasicRecord.getPersistedValue("1"));
+        Assert.assertEquals("newVal2", DummyBasicRecord.getPersistedValue("2"));
+        Assert.assertEquals("sub-newVal1", DummyBasicRecord.getPersistedValue("sub-1"));
+        Assert.assertEquals("sub-newVal2", DummyBasicRecord.getPersistedValue("sub-2"));
 
     }
 }
