@@ -52,7 +52,7 @@ public class SubordinateTest {
         ba1.add(proxyBasicRecord);
 
         DummyBasicRecord dummySubRecord1 = new DummyBasicRecord("sub-1");
-        DummyBasicRecord dummySubRecord2 = new DummyBasicRecord("sub-2", true);
+        DummyBasicRecord dummySubRecord2 = new DummyBasicRecord("sub-2");
         subordinateTransaction.add(dummySubRecord1);
         subordinateTransaction.add(dummySubRecord2);
 
