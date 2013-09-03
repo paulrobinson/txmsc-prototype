@@ -136,7 +136,7 @@ public class DummyBasicRecord extends AbstractRecord {
 
         log();
 
-        return RecordType.USER_DEF_FIRST0;
+        return RecordType.USER_DEF_FIRST1;
     }
 
 
@@ -162,6 +162,11 @@ public class DummyBasicRecord extends AbstractRecord {
         throw new Error("Intentional Error");
     }
 
+
+    public boolean doSave() {
+
+        return true;
+    }
 
     /*
      * Nothing too interesting below
@@ -269,8 +274,4 @@ public class DummyBasicRecord extends AbstractRecord {
         return false;
     }
 
-    public boolean doSave() {
-
-        return true;
-    }
 }

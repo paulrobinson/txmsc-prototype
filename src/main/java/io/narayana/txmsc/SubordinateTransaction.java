@@ -23,28 +23,68 @@
 package io.narayana.txmsc;
 
 import com.arjuna.ats.arjuna.common.Uid;
-import com.arjuna.ats.arjuna.coordinator.ActionStatus;
 import com.arjuna.ats.arjuna.coordinator.ActionType;
 import com.arjuna.ats.arjuna.coordinator.BasicAction;
-import com.arjuna.ats.arjuna.coordinator.TwoPhaseOutcome;
+import com.arjuna.ats.arjuna.state.InputObjectState;
+import com.arjuna.ats.arjuna.state.OutputObjectState;
+
+import java.io.IOException;
 
 /**
  * @author paul.robinson@redhat.com 07/08/2013
  */
 public class SubordinateTransaction extends BasicAction {
 
-    //todo: not needed?
-    Uid parentTransactionUid;
+    private Integer serverId;
 
-    public SubordinateTransaction(Uid parentTransactionUid) {
+    public SubordinateTransaction(Integer serverId) {
 
         super(ActionType.TOP_LEVEL);
-        this.parentTransactionUid = parentTransactionUid;
+        this.serverId = serverId;
+    }
+
+    public SubordinateTransaction(Integer serverId, Uid uid) {
+
+        super(uid);
+        activate();
+        this.serverId = serverId;
     }
 
     public String type() {
 
         return "/StateManager/SubordinateTransaction";
+    }
+
+    @Override
+    public boolean save_state(OutputObjectState os, int i) {
+
+        if (!super.save_state(os, i)) {
+            return false;
+        }
+
+        try {
+            os.packInt(serverId);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean restore_state(InputObjectState os, int i) {
+
+        if (!super.restore_state(os, i)) {
+            return false;
+        }
+
+        try {
+            serverId = os.unpackInt();
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
     }
 
     public int begin() {
@@ -68,5 +108,6 @@ public class SubordinateTransaction extends BasicAction {
         super.phase2Abort(true);
         return super.status();
     }
+
 
 }

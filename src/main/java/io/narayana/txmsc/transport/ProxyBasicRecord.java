@@ -22,10 +22,17 @@
 
 package io.narayana.txmsc.transport;
 
+import com.arjuna.ats.arjuna.common.Uid;
 import com.arjuna.ats.arjuna.coordinator.AbstractRecord;
 import com.arjuna.ats.arjuna.coordinator.RecordType;
 import com.arjuna.ats.arjuna.coordinator.TwoPhaseOutcome;
+import com.arjuna.ats.arjuna.state.InputObjectState;
+import com.arjuna.ats.arjuna.state.OutputObjectState;
+import com.arjuna.ats.internal.arjuna.common.UidHelper;
 import io.narayana.txmsc.SubordinateTransaction;
+import io.narayana.txmsc.SubordinateTransactionImporter;
+
+import java.io.IOException;
 
 /**
  * @author paul.robinson@redhat.com 07/08/2013
@@ -34,13 +41,17 @@ public class ProxyBasicRecord extends AbstractRecord {
 
     private String name;
     private SubordinateTransaction subordinateTransaction;
+    private Integer serverId;
 
+    public ProxyBasicRecord() {
 
-    public ProxyBasicRecord(String name, SubordinateTransaction subordinateTransaction) {
+    }
+
+    public ProxyBasicRecord(String name, Integer serverId, SubordinateTransaction subordinateTransaction) {
 
         this.name = name;
+        this.serverId = serverId;
         this.subordinateTransaction = subordinateTransaction;
-
     }
 
     @Override
@@ -65,6 +76,53 @@ public class ProxyBasicRecord extends AbstractRecord {
 
         log();
         //todo: is this linked to the "value" method?
+    }
+
+
+    @Override
+    public boolean doSave() {
+
+        return true;
+    }
+
+
+    @Override
+    public boolean save_state(OutputObjectState os, int i) {
+
+        log();
+
+        if (!super.save_state(os, i)) {
+            return false;
+        }
+
+        try {
+            os.packInt(serverId);
+            UidHelper.packInto(subordinateTransaction.get_uid(), os);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean restore_state(InputObjectState os, int i) {
+
+        log();
+
+        if (!super.restore_state(os, i)) {
+            return false;
+        }
+
+        try {
+            serverId = os.unpackInt();
+            Uid subordinateTransactionUid = UidHelper.unpackFrom(os);
+            subordinateTransaction = SubordinateTransactionImporter.getInstance().recoverTransaction(serverId, subordinateTransactionUid);
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
     }
 
     @Override

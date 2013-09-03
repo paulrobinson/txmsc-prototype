@@ -79,7 +79,7 @@
          on recovery modules and their configuration when running in various
          deployments.
     -->
-    <entry key="RecoveryEnvironmentBean.recoveryModuleClassNames" />
+    <entry key="RecoveryEnvironmentBean.recoveryModuleClassNames"/>
 
     <!-- Expiry scanners to use (order of invocation is random). -->
     <entry key="RecoveryEnvironmentBean.expiryScannerClassNames">

@@ -31,16 +31,16 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author paul.robinson@redhat.com 07/08/2013
  */
-public class BasicActionImporter {
+public class SubordinateTransactionImporter {
 
     private static Map<Integer, Map<Uid, SubordinateTransaction>> transactions = new ConcurrentHashMap<Integer, Map<Uid, SubordinateTransaction>>();
 
-    private static BasicActionImporter instance;
+    private static SubordinateTransactionImporter instance;
 
-    public static BasicActionImporter getInstance() {
+    public static SubordinateTransactionImporter getInstance() {
 
         if (instance == null) {
-            instance = new BasicActionImporter();
+            instance = new SubordinateTransactionImporter();
         }
         return instance;
     }
@@ -59,7 +59,7 @@ public class BasicActionImporter {
 
         SubordinateTransaction imported = subordinates.get(parentTransactionUid);
         if (imported == null) {
-            imported = new SubordinateTransaction(parentTransactionUid);
+            imported = new SubordinateTransaction(serverId);
             subordinates.put(parentTransactionUid, imported);
         }
 
@@ -67,12 +67,9 @@ public class BasicActionImporter {
     }
 
 
-    public void removeImportedTransaction(Integer id) throws XAException {
+    public SubordinateTransaction recoverTransaction(Integer serverId, Uid uid) {
 
-        if (id == null)
-            throw new IllegalArgumentException();
-
-        transactions.remove(id);
+        return new SubordinateTransaction(serverId, uid);
     }
 
 

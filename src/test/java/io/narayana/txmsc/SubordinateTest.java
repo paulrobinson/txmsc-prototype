@@ -51,9 +51,9 @@ public class SubordinateTest {
 
         Integer serverId = 1;
         Uid rootTransactionUid = new Uid();
-        SubordinateTransaction subordinateTransaction = BasicActionImporter.getInstance().getSubordinateTransaction(serverId, rootTransactionUid);
+        SubordinateTransaction subordinateTransaction = SubordinateTransactionImporter.getInstance().getSubordinateTransaction(serverId, rootTransactionUid);
         subordinateTransaction.begin();
-        ProxyBasicRecord proxyBasicRecord = new ProxyBasicRecord("proxy", subordinateTransaction);
+        ProxyBasicRecord proxyBasicRecord = new ProxyBasicRecord("proxy", serverId, subordinateTransaction);
 
         ba1.add(proxyBasicRecord);
 

@@ -19,4 +19,6 @@ public class RootTransactionRecoveryModule extends BasicActionRecoveryModule {
         RecoverRootTransaction rcvRootTransaction = new RecoverRootTransaction(recoverUid, theStatus);
         rcvRootTransaction.replayPhase2();
     }
+
+    //do orphan detection of subordinates here
 }
