@@ -38,15 +38,4 @@ public class RecoverySetup {
 
         recoveryManager.scan();
     }
-
-    public static void clearLog() {
-
-        File objectStoreDir = new File(BeanPopulator.getDefaultInstance(ObjectStoreEnvironmentBean.class).getObjectStoreDir() + "/ShadowNoFileLockStore/defaultStore/StateManager/RootTransaction");
-        for (File record : objectStoreDir.listFiles()) {
-            boolean result = record.delete();
-            if (!result) {
-                throw new RuntimeException("Unable to delete file: " + record.getAbsolutePath());
-            }
-        }
-    }
 }

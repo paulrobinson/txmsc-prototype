@@ -118,7 +118,7 @@ public class ProxyBasicRecord extends AbstractRecord {
         try {
             serverId = os.unpackInt();
             Uid subordinateTransactionUid = UidHelper.unpackFrom(os);
-            subordinateTransaction = SubordinateTransactionImporter.getInstance().recoverTransaction(serverId, subordinateTransactionUid);
+            subordinateTransaction = new SubordinateTransaction(serverId, subordinateTransactionUid);
         } catch (IOException e) {
             return false;
         }

@@ -58,7 +58,6 @@ public class RootTransaction extends BasicAction {
 
     protected int commit() {
 
-        //todo: do we want to report heuristics?
         return super.End(true);
     }
 

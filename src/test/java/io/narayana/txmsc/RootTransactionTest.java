@@ -22,10 +22,14 @@
 
 package io.narayana.txmsc;
 
+import com.arjuna.ats.arjuna.common.ObjectStoreEnvironmentBean;
 import com.arjuna.ats.arjuna.coordinator.abstractrecord.RecordTypeManager;
+import com.arjuna.common.internal.util.propertyservice.BeanPopulator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
 
 /**
  * @author paul.robinson@redhat.com 07/08/2013
@@ -36,7 +40,7 @@ public class RootTransactionTest {
     public void resetData() {
 
         DummyBasicRecord.reset();
-        RecoverySetup.clearLog();
+        clearLog();
     }
 
     @Test
@@ -101,5 +105,18 @@ public class RootTransactionTest {
 
         Assert.assertEquals("newVal1", DummyBasicRecord.getPersistedValue("1"));
         Assert.assertEquals("newVal2", DummyBasicRecord.getPersistedValue("2"));
+
+        RecoverySetup.stopRecovery();
+    }
+
+    private void clearLog() {
+
+        File objectStoreDir = new File(BeanPopulator.getDefaultInstance(ObjectStoreEnvironmentBean.class).getObjectStoreDir() + "/ShadowNoFileLockStore/defaultStore/StateManager/RootTransaction");
+        for (File record : objectStoreDir.listFiles()) {
+            boolean result = record.delete();
+            if (!result) {
+                throw new RuntimeException("Unable to delete file: " + record.getAbsolutePath());
+            }
+        }
     }
 }

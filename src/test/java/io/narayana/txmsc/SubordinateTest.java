@@ -25,12 +25,19 @@ package io.narayana.txmsc;
 import com.arjuna.ats.arjuna.common.Uid;
 import io.narayana.txmsc.transport.ProxyBasicRecord;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
  * @author paul.robinson@redhat.com 07/08/2013
  */
 public class SubordinateTest {
+
+    @Before
+    public void resetData() {
+
+        DummyBasicRecord.reset();
+    }
 
     @Test
     public void testSimple() throws Exception {
@@ -51,7 +58,7 @@ public class SubordinateTest {
 
         Integer serverId = 1;
         Uid rootTransactionUid = new Uid();
-        SubordinateTransaction subordinateTransaction = SubordinateTransactionImporter.getInstance().getSubordinateTransaction(serverId, rootTransactionUid);
+        SubordinateTransaction subordinateTransaction = SubordinateTransactionImporter.getSubordinateTransaction(serverId, rootTransactionUid);
         subordinateTransaction.begin();
         ProxyBasicRecord proxyBasicRecord = new ProxyBasicRecord("proxy", serverId, subordinateTransaction);
 

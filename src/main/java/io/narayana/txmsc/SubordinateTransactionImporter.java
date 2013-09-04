@@ -35,17 +35,7 @@ public class SubordinateTransactionImporter {
 
     private static Map<Integer, Map<Uid, SubordinateTransaction>> transactions = new ConcurrentHashMap<Integer, Map<Uid, SubordinateTransaction>>();
 
-    private static SubordinateTransactionImporter instance;
-
-    public static SubordinateTransactionImporter getInstance() {
-
-        if (instance == null) {
-            instance = new SubordinateTransactionImporter();
-        }
-        return instance;
-    }
-
-    public SubordinateTransaction getSubordinateTransaction(Integer serverId, Uid parentTransactionUid)
+    public static SubordinateTransaction getSubordinateTransaction(Integer serverId, Uid parentTransactionUid)
             throws XAException {
 
         if (serverId == null || parentTransactionUid == null)
@@ -65,12 +55,5 @@ public class SubordinateTransactionImporter {
 
         return imported;
     }
-
-
-    public SubordinateTransaction recoverTransaction(Integer serverId, Uid uid) {
-
-        return new SubordinateTransaction(serverId, uid);
-    }
-
 
 }

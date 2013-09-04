@@ -57,6 +57,8 @@ public class SimpleRecoveryExample {
 
         System.out.println(DummyBasicRecord.getPersistedValue("1"));
         System.out.println(DummyBasicRecord.getPersistedValue("2"));
+
+        RecoverySetup.stopRecovery();
     }
 
 }

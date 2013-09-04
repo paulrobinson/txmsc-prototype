@@ -75,6 +75,8 @@ public class SubordinateRecoveryExample {
         System.out.println(DummyBasicRecord.getPersistedValue("2"));
         System.out.println(DummyBasicRecord.getPersistedValue("sub-1"));
         System.out.println(DummyBasicRecord.getPersistedValue("sub-2"));
+
+        RecoverySetup.stopRecovery();
     }
 
 }
