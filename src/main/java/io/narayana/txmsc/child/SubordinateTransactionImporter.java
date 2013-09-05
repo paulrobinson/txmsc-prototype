@@ -20,54 +20,43 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package io.narayana.txmsc;
+package io.narayana.txmsc.child;
 
 import com.arjuna.ats.arjuna.common.Uid;
-import com.arjuna.ats.arjuna.coordinator.ActionType;
-import com.arjuna.ats.arjuna.coordinator.BasicAction;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Need to extend BasicAction as BasicAction's Begin and End methods are protected.
- * <p/>
- * Why can't BasicAction be made non-abstract
- * Can we use TwoPhaseCoordinator?
- * Yes, but supports nesting which could cause problems.
- * Why can't we just use AtomicAction for this?
- * It does thread association that we don't need.
- * Does this really matter, currently looks like it will save a lot of code as AtomicActionRecoveryModule can't
- * easily be extended.
- *
  * @author paul.robinson@redhat.com 07/08/2013
  */
-public class RootTransaction extends BasicAction {
+public class SubordinateTransactionImporter {
 
-    public RootTransaction() {
 
-        super(ActionType.TOP_LEVEL);
+    //todo: do we actually need this in-memmory mapping?
+    private static Map<Integer, Map<Uid, SubordinateTransaction>> transactions = new ConcurrentHashMap<Integer, Map<Uid, SubordinateTransaction>>();
+
+    public static SubordinateTransaction getSubordinateTransaction(Integer serverId, Uid subordinateUid) {
+
+        if (serverId == null)
+            throw new IllegalArgumentException();
+
+        Map<Uid, SubordinateTransaction> subordinates = transactions.get(serverId);
+        if (subordinates == null) {
+            subordinates = new ConcurrentHashMap<Uid, SubordinateTransaction>();
+            transactions.put(serverId, subordinates);
+        }
+
+        SubordinateTransaction imported;
+        if (subordinateUid == null) {
+            imported = new SubordinateTransaction(serverId);
+            subordinates.put(imported.get_uid(), imported);
+        }
+        else {
+            imported = subordinates.get(subordinateUid);
+        }
+
+        return imported;
     }
 
-    public RootTransaction(Uid objUid) {
-
-        super(objUid, ActionType.TOP_LEVEL);
-    }
-
-    public int begin() {
-
-        return super.Begin(null);
-    }
-
-    protected int commit() {
-
-        return super.End(true);
-    }
-
-    protected int rollback() {
-
-        return super.Abort();
-    }
-
-    public String type() {
-
-        return "/StateManager/RootTransaction";
-    }
 }

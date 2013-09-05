@@ -2,7 +2,11 @@ package io.narayana.txmsc;
 
 import com.arjuna.ats.arjuna.common.Uid;
 import com.arjuna.ats.arjuna.coordinator.abstractrecord.RecordTypeManager;
-import io.narayana.txmsc.transport.ProxyBasicRecord;
+import io.narayana.txmsc.child.SubordinateTransaction;
+import io.narayana.txmsc.parent.RootTransaction;
+import io.narayana.txmsc.parent.SubordinateParticipantStub;
+import io.narayana.txmsc.parent.SubordinateParticipantStubRecordTypeMap;
+import io.narayana.txmsc.child.SubordinateTransactionImporter;
 
 /**
  * @author paul.robinson@redhat.com 08/08/2013
@@ -22,37 +26,51 @@ public class SubordinateRecoveryExample {
 
     private static void runTransaction() throws Exception {
 
-        RootTransaction ba1 = new RootTransaction();
-        ba1.begin();
+        /*
+            PARENT SIDE
+         */
+        Integer parentServerId = 1;
 
-        DummyBasicRecord dummyBasicRecord1 = new DummyBasicRecord("1");
-        DummyBasicRecord dummyBasicRecord2 = new DummyBasicRecord("2");
-        ba1.add(dummyBasicRecord1);
-        ba1.add(dummyBasicRecord2);
+        RootTransaction rootTransaction = new RootTransaction();
+        rootTransaction.begin();
 
-        dummyBasicRecord1.setNewValue("1", "newVal1");
-        dummyBasicRecord2.setNewValue("2", "newVal2");
+        ConfigParticipant rootsConfigService = new ConfigParticipant("ParentConfigService");
+        rootTransaction.add(rootsConfigService);
 
-        Integer serverId = 1;
-        Uid rootTransactionUid = new Uid();
-        SubordinateTransaction subordinateTransaction = SubordinateTransactionImporter.getSubordinateTransaction(serverId, rootTransactionUid);
+        //Make the config change
+        rootsConfigService.setNewValue("parent-config", "newParentConfigValue");
+
+
+        /*
+            CHILD SIDE
+         */
+        SubordinateTransaction subordinateTransaction = SubordinateTransactionImporter.getSubordinateTransaction(parentServerId, null);
         subordinateTransaction.begin();
-        ProxyBasicRecord proxyBasicRecord = new ProxyBasicRecord("proxy", serverId, subordinateTransaction);
+        //Get subordinate Uid and pass to parent.
+        Uid subordinateUid = subordinateTransaction.get_uid();
 
-        ba1.add(proxyBasicRecord);
+        /*
+            PARENT SIDE
+         */
+        SubordinateParticipantStub subordinateParticipantStub = new SubordinateParticipantStub(parentServerId, subordinateUid);
+        rootTransaction.add(subordinateParticipantStub);
 
-        DummyBasicRecord dummySubRecord1 = new DummyBasicRecord("sub-1");
-        DummyBasicRecord dummySubRecord2 = new DummyBasicRecord("sub-2", true);
-        subordinateTransaction.add(dummySubRecord1);
-        subordinateTransaction.add(dummySubRecord2);
 
-        dummySubRecord1.setNewValue("sub-1", "sub-newVal1");
-        dummySubRecord2.setNewValue("sub-2", "sub-newVal2");
+        /*
+            CHILD SIDE
+         */
+        ConfigParticipant childsConfigService = new ConfigParticipant("childConfigService", true);
+        subordinateTransaction.add(childsConfigService);
 
-        ba1.commit();
+        //Make the config change
+        childsConfigService.setNewValue("child-config", "newChildConfigValue");
 
+
+        /*
+            PARENT SIDE
+         */
         try {
-            ba1.commit();
+            rootTransaction.commit();
         } catch (Error e) {
             System.out.println("Server simulated a crashed, as expected");
         }
@@ -60,21 +78,22 @@ public class SubordinateRecoveryExample {
 
     private static void recoverTransaction() throws Exception {
 
-        DummyBasicRecordTypeMap map = new DummyBasicRecordTypeMap();
+        /*
+            PARENT SIDE
+         */
+        ConfigParticipantRecordTypeMap map = new ConfigParticipantRecordTypeMap();
         RecordTypeManager.manager().add(map);
 
-        ProxyBasicRecordTypeMap proxyBasicRecordTypeMap = new ProxyBasicRecordTypeMap();
-        RecordTypeManager.manager().add(proxyBasicRecordTypeMap);
+        SubordinateParticipantStubRecordTypeMap subordinateParticipantStubRecordTypeMap = new SubordinateParticipantStubRecordTypeMap();
+        RecordTypeManager.manager().add(subordinateParticipantStubRecordTypeMap);
 
         RecoverySetup.startRecovery();
         RecoverySetup.runRecoveryScan();
 
         Thread.sleep(5000);
 
-        System.out.println(DummyBasicRecord.getPersistedValue("1"));
-        System.out.println(DummyBasicRecord.getPersistedValue("2"));
-        System.out.println(DummyBasicRecord.getPersistedValue("sub-1"));
-        System.out.println(DummyBasicRecord.getPersistedValue("sub-2"));
+        System.out.println(ConfigParticipant.getPersistedValue("child-config"));
+        System.out.println(ConfigParticipant.getPersistedValue("parent-config"));
 
         RecoverySetup.stopRecovery();
     }

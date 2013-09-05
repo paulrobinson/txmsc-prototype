@@ -25,6 +25,7 @@ package io.narayana.txmsc;
 import com.arjuna.ats.arjuna.common.ObjectStoreEnvironmentBean;
 import com.arjuna.ats.arjuna.coordinator.abstractrecord.RecordTypeManager;
 import com.arjuna.common.internal.util.propertyservice.BeanPopulator;
+import io.narayana.txmsc.parent.RootTransaction;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +40,7 @@ public class RootTransactionTest {
     @Before
     public void resetData() {
 
-        DummyBasicRecord.reset();
+        ConfigParticipant.reset();
         clearLog();
     }
 
@@ -49,21 +50,21 @@ public class RootTransactionTest {
         RootTransaction ba1 = new RootTransaction();
         ba1.begin();
 
-        DummyBasicRecord dummyBasicRecord1 = new DummyBasicRecord("1");
-        DummyBasicRecord dummyBasicRecord2 = new DummyBasicRecord("2");
-        ba1.add(dummyBasicRecord1);
-        ba1.add(dummyBasicRecord2);
+        ConfigParticipant configParticipant1 = new ConfigParticipant("1");
+        ConfigParticipant configParticipant2 = new ConfigParticipant("2");
+        ba1.add(configParticipant1);
+        ba1.add(configParticipant2);
 
-        dummyBasicRecord1.setNewValue("1", "newVal1");
-        dummyBasicRecord2.setNewValue("2", "newVal2");
+        configParticipant1.setNewValue("1", "newVal1");
+        configParticipant2.setNewValue("2", "newVal2");
 
-        Assert.assertEquals(null, DummyBasicRecord.getPersistedValue("1"));
-        Assert.assertEquals(null, DummyBasicRecord.getPersistedValue("2"));
+        Assert.assertEquals(null, ConfigParticipant.getPersistedValue("1"));
+        Assert.assertEquals(null, ConfigParticipant.getPersistedValue("2"));
 
         ba1.commit();
 
-        Assert.assertEquals("newVal1", DummyBasicRecord.getPersistedValue("1"));
-        Assert.assertEquals("newVal2", DummyBasicRecord.getPersistedValue("2"));
+        Assert.assertEquals("newVal1", ConfigParticipant.getPersistedValue("1"));
+        Assert.assertEquals("newVal2", ConfigParticipant.getPersistedValue("2"));
 
     }
 
@@ -73,16 +74,16 @@ public class RootTransactionTest {
         RootTransaction ba1 = new RootTransaction();
         ba1.begin();
 
-        DummyBasicRecord dummyBasicRecord1 = new DummyBasicRecord("1");
-        DummyBasicRecord dummyBasicRecord2 = new DummyBasicRecord("2", true);
-        ba1.add(dummyBasicRecord1);
-        ba1.add(dummyBasicRecord2);
+        ConfigParticipant configParticipant1 = new ConfigParticipant("1");
+        ConfigParticipant configParticipant2 = new ConfigParticipant("2", true);
+        ba1.add(configParticipant1);
+        ba1.add(configParticipant2);
 
-        dummyBasicRecord1.setNewValue("1", "newVal1");
-        dummyBasicRecord2.setNewValue("2", "newVal2");
+        configParticipant1.setNewValue("1", "newVal1");
+        configParticipant2.setNewValue("2", "newVal2");
 
-        Assert.assertEquals(null, DummyBasicRecord.getPersistedValue("1"));
-        Assert.assertEquals(null, DummyBasicRecord.getPersistedValue("2"));
+        Assert.assertEquals(null, ConfigParticipant.getPersistedValue("1"));
+        Assert.assertEquals(null, ConfigParticipant.getPersistedValue("2"));
 
         try {
             ba1.commit();
@@ -91,11 +92,11 @@ public class RootTransactionTest {
             //expected
         }
 
-        Assert.assertEquals("newVal1", DummyBasicRecord.getPersistedValue("1"));
-        Assert.assertEquals(null, DummyBasicRecord.getPersistedValue("2"));
+        Assert.assertEquals("newVal1", ConfigParticipant.getPersistedValue("1"));
+        Assert.assertEquals(null, ConfigParticipant.getPersistedValue("2"));
 
         //Now Run recovery and check it worked....
-        DummyBasicRecordTypeMap map = new DummyBasicRecordTypeMap();
+        ConfigParticipantRecordTypeMap map = new ConfigParticipantRecordTypeMap();
         RecordTypeManager.manager().add(map);
 
         RecoverySetup.startRecovery();
@@ -103,8 +104,8 @@ public class RootTransactionTest {
 
         Thread.sleep(5000);
 
-        Assert.assertEquals("newVal1", DummyBasicRecord.getPersistedValue("1"));
-        Assert.assertEquals("newVal2", DummyBasicRecord.getPersistedValue("2"));
+        Assert.assertEquals("newVal1", ConfigParticipant.getPersistedValue("1"));
+        Assert.assertEquals("newVal2", ConfigParticipant.getPersistedValue("2"));
 
         RecoverySetup.stopRecovery();
     }

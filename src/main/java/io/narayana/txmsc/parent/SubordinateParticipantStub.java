@@ -20,62 +20,69 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package io.narayana.txmsc;
+package io.narayana.txmsc.parent;
 
+import com.arjuna.ats.arjuna.common.Uid;
 import com.arjuna.ats.arjuna.coordinator.AbstractRecord;
 import com.arjuna.ats.arjuna.coordinator.RecordType;
 import com.arjuna.ats.arjuna.coordinator.TwoPhaseOutcome;
 import com.arjuna.ats.arjuna.state.InputObjectState;
 import com.arjuna.ats.arjuna.state.OutputObjectState;
+import com.arjuna.ats.internal.arjuna.common.UidHelper;
+import io.narayana.txmsc.child.SubordinateParticipant;
+import io.narayana.txmsc.child.SubordinateTransaction;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author paul.robinson@redhat.com 07/08/2013
  */
-public class DummyBasicRecord extends AbstractRecord {
+public class SubordinateParticipantStub extends AbstractRecord {
 
-    private String name;
+    private Integer serverId;
+    private Uid subordinateUid;
 
-    private boolean failCommit = false;
+    private SubordinateParticipant subordinateParticipant;
 
-    private static Map<String, String> persistedValues = new HashMap<String, String>();
-
-    private String key;
-    private String newValue;
-
-    public DummyBasicRecord() {
-
-        this.name = "recovery";
+    public SubordinateParticipantStub() {
     }
 
-    public DummyBasicRecord(String name) {
+    public SubordinateParticipantStub(Integer serverId, Uid subordinateUid) {
 
-        this.name = name;
+        this.serverId = serverId;
+        this.subordinateUid = subordinateUid;
+        this.subordinateParticipant = SubordinateParticipant.lookup(serverId, subordinateUid);
     }
 
-    public DummyBasicRecord(String name, boolean failCommit) {
+    @Override
+    public int typeIs() {
 
-        this.name = name;
-        this.failCommit = failCommit;
+        log();
+
+        //todo: Document
+        return RecordType.USER_DEF_FIRST0;
     }
 
-    public void setNewValue(String key, String newValue) {
+    @Override
+    public Object value() {
 
-        this.key = key;
-        this.newValue = newValue;
+        log();
+        // return a HeuristicInformation if we had one.
+        return null;
     }
 
-    public static String getPersistedValue(String key) {
+    @Override
+    public void setValue(Object o) {
 
-        return persistedValues.get(key);
+        log();
+        //todo: is this linked to the "value" method?
     }
 
-    public static void reset() {
 
-        persistedValues = new HashMap<String, String>();
+    @Override
+    public boolean doSave() {
+
+        return true;
     }
 
 
@@ -89,8 +96,8 @@ public class DummyBasicRecord extends AbstractRecord {
         }
 
         try {
-            os.packString(key);
-            os.packString(newValue);
+            os.packInt(serverId);
+            UidHelper.packInto(subordinateUid, os);
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -109,85 +116,16 @@ public class DummyBasicRecord extends AbstractRecord {
         }
 
         try {
-            key = os.unpackString();
-            newValue = os.unpackString();
+            serverId = os.unpackInt();
+            subordinateUid = UidHelper.unpackFrom(os);
+
+            //Lookup the remote participant, ensuring it restores from the recovery log
+            subordinateParticipant = SubordinateParticipant.lookupDuringRecovery(serverId, subordinateUid);
         } catch (IOException e) {
             return false;
         }
         return true;
     }
-
-    @Override
-    public int topLevelCommit() {
-
-        if (failCommit) {
-            fail();
-        }
-
-        log("newValue:" + key + "=" + newValue);
-        persistedValues.put(key, newValue);
-
-        return TwoPhaseOutcome.FINISH_OK;
-    }
-
-
-    @Override
-    public int typeIs() {
-
-        log();
-
-        return RecordType.USER_DEF_FIRST1;
-    }
-
-
-    private void log(String... additionalMsg) {
-
-        final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-        String methodName = ste[2].getMethodName();
-
-        String message = "DummyBasicRecord:" + name + ":" + methodName;
-
-        if (additionalMsg.length > 0) {
-            message += ":" + additionalMsg[0];
-        }
-
-        System.out.println(message);
-    }
-
-    private void fail() {
-
-        final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-        String methodName = ste[2].getMethodName();
-        System.out.println("DummyBasicRecord:" + name + ":CRASH:" + methodName);
-        throw new Error("Intentional Error");
-    }
-
-
-    public boolean doSave() {
-
-        return true;
-    }
-
-    /*
-     * Nothing too interesting below
-     */
-
-
-    @Override
-    public Object value() {
-
-        log();
-        // return a HeuristicInformation if we had one.
-        return null;
-    }
-
-    @Override
-    public void setValue(Object o) {
-
-        log();
-        //todo: is this linked to the "value" method?
-    }
-
 
     @Override
     public int nestedAbort() {
@@ -210,6 +148,7 @@ public class DummyBasicRecord extends AbstractRecord {
 
         log();
 
+
         return TwoPhaseOutcome.FINISH_OK;
     }
 
@@ -217,35 +156,37 @@ public class DummyBasicRecord extends AbstractRecord {
     public int topLevelAbort() {
 
         log();
-        return TwoPhaseOutcome.FINISH_OK;
+        //Simulates a remote call
+        return subordinateParticipant.rollback();
+    }
+
+    @Override
+    public int topLevelCommit() {
+
+        log();
+        //Simulates a remote call
+        return subordinateParticipant.commit();
     }
 
     @Override
     public int topLevelPrepare() {
 
         log();
-
-        return TwoPhaseOutcome.PREPARE_OK;
+        //Simulates a remote call
+        return subordinateParticipant.prepare();
     }
 
     @Override
     public void merge(AbstractRecord a) {
-
-        log();
-
     }
 
     @Override
     public void alter(AbstractRecord a) {
 
-        log();
-
     }
 
     @Override
     public boolean shouldAdd(AbstractRecord a) {
-
-        log();
 
         return true;
     }
@@ -253,15 +194,11 @@ public class DummyBasicRecord extends AbstractRecord {
     @Override
     public boolean shouldAlter(AbstractRecord a) {
 
-        log();
-
         return false;
     }
 
     @Override
     public boolean shouldMerge(AbstractRecord a) {
-
-        log();
 
         return false;
     }
@@ -269,9 +206,13 @@ public class DummyBasicRecord extends AbstractRecord {
     @Override
     public boolean shouldReplace(AbstractRecord a) {
 
-        log();
-
         return false;
     }
 
+    private void log() {
+
+        final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+        String methodName = ste[2].getMethodName();
+        System.out.println("SubordinateParticipantStub:" + methodName);
+    }
 }

@@ -1,10 +1,7 @@
 package io.narayana.txmsc;
 
-import com.arjuna.ats.arjuna.common.ObjectStoreEnvironmentBean;
 import com.arjuna.ats.arjuna.coordinator.abstractrecord.RecordTypeManager;
-import com.arjuna.common.internal.util.propertyservice.BeanPopulator;
-
-import java.io.File;
+import io.narayana.txmsc.parent.RootTransaction;
 
 /**
  * @author paul.robinson@redhat.com 08/08/2013
@@ -30,13 +27,13 @@ public class SimpleRecoveryExample {
         RootTransaction ba1 = new RootTransaction();
         ba1.begin();
 
-        DummyBasicRecord dummyBasicRecord1 = new DummyBasicRecord("1");
-        DummyBasicRecord dummyBasicRecord2 = new DummyBasicRecord("2", true);
-        ba1.add(dummyBasicRecord1);
-        ba1.add(dummyBasicRecord2);
+        ConfigParticipant configParticipant1 = new ConfigParticipant("1");
+        ConfigParticipant configParticipant2 = new ConfigParticipant("2", true);
+        ba1.add(configParticipant1);
+        ba1.add(configParticipant2);
 
-        dummyBasicRecord1.setNewValue("1", "newVal1");
-        dummyBasicRecord2.setNewValue("2", "newVal2");
+        configParticipant1.setNewValue("1", "newVal1");
+        configParticipant2.setNewValue("2", "newVal2");
 
         try {
             ba1.commit();
@@ -47,7 +44,7 @@ public class SimpleRecoveryExample {
 
     private static void recoverTransaction() throws Exception {
 
-        DummyBasicRecordTypeMap map = new DummyBasicRecordTypeMap();
+        ConfigParticipantRecordTypeMap map = new ConfigParticipantRecordTypeMap();
         RecordTypeManager.manager().add(map);
 
         RecoverySetup.startRecovery();
@@ -55,8 +52,8 @@ public class SimpleRecoveryExample {
 
         Thread.sleep(5000);
 
-        System.out.println(DummyBasicRecord.getPersistedValue("1"));
-        System.out.println(DummyBasicRecord.getPersistedValue("2"));
+        System.out.println(ConfigParticipant.getPersistedValue("1"));
+        System.out.println(ConfigParticipant.getPersistedValue("2"));
 
         RecoverySetup.stopRecovery();
     }

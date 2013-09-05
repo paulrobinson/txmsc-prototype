@@ -23,7 +23,10 @@
 package io.narayana.txmsc;
 
 import com.arjuna.ats.arjuna.common.Uid;
-import io.narayana.txmsc.transport.ProxyBasicRecord;
+import io.narayana.txmsc.child.SubordinateTransaction;
+import io.narayana.txmsc.parent.RootTransaction;
+import io.narayana.txmsc.parent.SubordinateParticipantStub;
+import io.narayana.txmsc.child.SubordinateTransactionImporter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +39,7 @@ public class SubordinateTest {
     @Before
     public void resetData() {
 
-        DummyBasicRecord.reset();
+        ConfigParticipant.reset();
     }
 
     @Test
@@ -45,42 +48,42 @@ public class SubordinateTest {
         RootTransaction ba1 = new RootTransaction();
         ba1.begin();
 
-        DummyBasicRecord dummyBasicRecord1 = new DummyBasicRecord("1");
-        DummyBasicRecord dummyBasicRecord2 = new DummyBasicRecord("2");
-        ba1.add(dummyBasicRecord1);
-        ba1.add(dummyBasicRecord2);
+        ConfigParticipant configParticipant1 = new ConfigParticipant("1");
+        ConfigParticipant configParticipant2 = new ConfigParticipant("2");
+        ba1.add(configParticipant1);
+        ba1.add(configParticipant2);
 
-        dummyBasicRecord1.setNewValue("1", "newVal1");
-        dummyBasicRecord2.setNewValue("2", "newVal2");
+        configParticipant1.setNewValue("1", "newVal1");
+        configParticipant2.setNewValue("2", "newVal2");
 
-        Assert.assertEquals(null, DummyBasicRecord.getPersistedValue("1"));
-        Assert.assertEquals(null, DummyBasicRecord.getPersistedValue("2"));
+        Assert.assertEquals(null, ConfigParticipant.getPersistedValue("1"));
+        Assert.assertEquals(null, ConfigParticipant.getPersistedValue("2"));
 
         Integer serverId = 1;
         Uid rootTransactionUid = new Uid();
         SubordinateTransaction subordinateTransaction = SubordinateTransactionImporter.getSubordinateTransaction(serverId, rootTransactionUid);
         subordinateTransaction.begin();
-        ProxyBasicRecord proxyBasicRecord = new ProxyBasicRecord("proxy", serverId, subordinateTransaction);
+        SubordinateParticipantStub subordinateParticipantStub = new SubordinateParticipantStub(serverId, subordinateTransaction.get_uid());
 
-        ba1.add(proxyBasicRecord);
+        ba1.add(subordinateParticipantStub);
 
-        DummyBasicRecord dummySubRecord1 = new DummyBasicRecord("sub-1");
-        DummyBasicRecord dummySubRecord2 = new DummyBasicRecord("sub-2");
+        ConfigParticipant dummySubRecord1 = new ConfigParticipant("sub-1");
+        ConfigParticipant dummySubRecord2 = new ConfigParticipant("sub-2");
         subordinateTransaction.add(dummySubRecord1);
         subordinateTransaction.add(dummySubRecord2);
 
         dummySubRecord1.setNewValue("sub-1", "sub-newVal1");
         dummySubRecord2.setNewValue("sub-2", "sub-newVal2");
 
-        Assert.assertEquals(null, DummyBasicRecord.getPersistedValue("sub-1"));
-        Assert.assertEquals(null, DummyBasicRecord.getPersistedValue("sub-2"));
+        Assert.assertEquals(null, ConfigParticipant.getPersistedValue("sub-1"));
+        Assert.assertEquals(null, ConfigParticipant.getPersistedValue("sub-2"));
 
         ba1.commit();
 
-        Assert.assertEquals("newVal1", DummyBasicRecord.getPersistedValue("1"));
-        Assert.assertEquals("newVal2", DummyBasicRecord.getPersistedValue("2"));
-        Assert.assertEquals("sub-newVal1", DummyBasicRecord.getPersistedValue("sub-1"));
-        Assert.assertEquals("sub-newVal2", DummyBasicRecord.getPersistedValue("sub-2"));
+        Assert.assertEquals("newVal1", ConfigParticipant.getPersistedValue("1"));
+        Assert.assertEquals("newVal2", ConfigParticipant.getPersistedValue("2"));
+        Assert.assertEquals("sub-newVal1", ConfigParticipant.getPersistedValue("sub-1"));
+        Assert.assertEquals("sub-newVal2", ConfigParticipant.getPersistedValue("sub-2"));
 
     }
 }

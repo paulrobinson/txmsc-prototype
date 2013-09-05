@@ -1,4 +1,4 @@
-package io.narayana.txmsc;
+package io.narayana.txmsc.parent;
 
 import com.arjuna.ats.arjuna.common.Uid;
 import com.arjuna.ats.arjuna.coordinator.ActionStatus;

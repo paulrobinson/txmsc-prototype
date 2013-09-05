@@ -20,69 +20,62 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package io.narayana.txmsc.transport;
+package io.narayana.txmsc;
 
-import com.arjuna.ats.arjuna.common.Uid;
 import com.arjuna.ats.arjuna.coordinator.AbstractRecord;
 import com.arjuna.ats.arjuna.coordinator.RecordType;
 import com.arjuna.ats.arjuna.coordinator.TwoPhaseOutcome;
 import com.arjuna.ats.arjuna.state.InputObjectState;
 import com.arjuna.ats.arjuna.state.OutputObjectState;
-import com.arjuna.ats.internal.arjuna.common.UidHelper;
-import io.narayana.txmsc.SubordinateTransaction;
-import io.narayana.txmsc.SubordinateTransactionImporter;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author paul.robinson@redhat.com 07/08/2013
  */
-public class ProxyBasicRecord extends AbstractRecord {
+public class ConfigParticipant extends AbstractRecord {
 
     private String name;
-    private SubordinateTransaction subordinateTransaction;
-    private Integer serverId;
 
-    public ProxyBasicRecord() {
+    private boolean failCommit = false;
 
+    private static Map<String, String> persistedValues = new HashMap<String, String>();
+
+    private String key;
+    private String newValue;
+
+    public ConfigParticipant() {
+
+        this.name = "recovery";
     }
 
-    public ProxyBasicRecord(String name, Integer serverId, SubordinateTransaction subordinateTransaction) {
+    public ConfigParticipant(String name) {
 
         this.name = name;
-        this.serverId = serverId;
-        this.subordinateTransaction = subordinateTransaction;
     }
 
-    @Override
-    public int typeIs() {
+    public ConfigParticipant(String name, boolean failCommit) {
 
-        log();
-
-        //todo: Document
-        return RecordType.USER_DEF_FIRST0;
+        this.name = name;
+        this.failCommit = failCommit;
     }
 
-    @Override
-    public Object value() {
+    public void setNewValue(String key, String newValue) {
 
-        log();
-        // return a HeuristicInformation if we had one.
-        return null;
+        this.key = key;
+        this.newValue = newValue;
     }
 
-    @Override
-    public void setValue(Object o) {
+    public static String getPersistedValue(String key) {
 
-        log();
-        //todo: is this linked to the "value" method?
+        return persistedValues.get(key);
     }
 
+    public static void reset() {
 
-    @Override
-    public boolean doSave() {
-
-        return true;
+        persistedValues = new HashMap<String, String>();
     }
 
 
@@ -96,8 +89,8 @@ public class ProxyBasicRecord extends AbstractRecord {
         }
 
         try {
-            os.packInt(serverId);
-            UidHelper.packInto(subordinateTransaction.get_uid(), os);
+            os.packString(key);
+            os.packString(newValue);
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -116,14 +109,85 @@ public class ProxyBasicRecord extends AbstractRecord {
         }
 
         try {
-            serverId = os.unpackInt();
-            Uid subordinateTransactionUid = UidHelper.unpackFrom(os);
-            subordinateTransaction = new SubordinateTransaction(serverId, subordinateTransactionUid);
+            key = os.unpackString();
+            newValue = os.unpackString();
         } catch (IOException e) {
             return false;
         }
         return true;
     }
+
+    @Override
+    public int topLevelCommit() {
+
+        if (failCommit) {
+            fail();
+        }
+
+        log("newValue:" + key + "=" + newValue);
+        persistedValues.put(key, newValue);
+
+        return TwoPhaseOutcome.FINISH_OK;
+    }
+
+
+    @Override
+    public int typeIs() {
+
+        log();
+
+        return RecordType.USER_DEF_FIRST1;
+    }
+
+
+    private void log(String... additionalMsg) {
+
+        final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+        String methodName = ste[2].getMethodName();
+
+        String message = "ConfigParticipant:" + name + ":" + methodName;
+
+        if (additionalMsg.length > 0) {
+            message += ":" + additionalMsg[0];
+        }
+
+        System.out.println(message);
+    }
+
+    private void fail() {
+
+        final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+        String methodName = ste[2].getMethodName();
+        System.out.println("ConfigParticipant:" + name + ":CRASH:" + methodName);
+        throw new Error("Intentional Error");
+    }
+
+
+    public boolean doSave() {
+
+        return true;
+    }
+
+    /*
+     * Nothing too interesting below
+     */
+
+
+    @Override
+    public Object value() {
+
+        log();
+        // return a HeuristicInformation if we had one.
+        return null;
+    }
+
+    @Override
+    public void setValue(Object o) {
+
+        log();
+        //todo: is this linked to the "value" method?
+    }
+
 
     @Override
     public int nestedAbort() {
@@ -146,7 +210,6 @@ public class ProxyBasicRecord extends AbstractRecord {
 
         log();
 
-
         return TwoPhaseOutcome.FINISH_OK;
     }
 
@@ -154,15 +217,7 @@ public class ProxyBasicRecord extends AbstractRecord {
     public int topLevelAbort() {
 
         log();
-        return subordinateTransaction.rollback();
-    }
-
-    @Override
-    public int topLevelCommit() {
-
-        log();
-
-        return subordinateTransaction.commit();
+        return TwoPhaseOutcome.FINISH_OK;
     }
 
     @Override
@@ -170,7 +225,7 @@ public class ProxyBasicRecord extends AbstractRecord {
 
         log();
 
-        return subordinateTransaction.prepare();
+        return TwoPhaseOutcome.PREPARE_OK;
     }
 
     @Override
@@ -219,10 +274,4 @@ public class ProxyBasicRecord extends AbstractRecord {
         return false;
     }
 
-    private void log() {
-
-        final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-        String methodName = ste[2].getMethodName();
-        System.out.println("DummyBasicRecord:" + name + ":" + methodName);
-    }
 }

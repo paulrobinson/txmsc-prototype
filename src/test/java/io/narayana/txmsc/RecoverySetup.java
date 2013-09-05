@@ -1,12 +1,11 @@
 package io.narayana.txmsc;
 
-import com.arjuna.ats.arjuna.common.ObjectStoreEnvironmentBean;
 import com.arjuna.ats.arjuna.common.RecoveryEnvironmentBean;
 import com.arjuna.ats.arjuna.recovery.RecoveryManager;
 import com.arjuna.ats.arjuna.recovery.RecoveryModule;
 import com.arjuna.common.internal.util.propertyservice.BeanPopulator;
+import io.narayana.txmsc.parent.RootTransactionRecoveryModule;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
