@@ -45,6 +45,8 @@ public class SubordinateTest {
     @Test
     public void testSimple() throws Exception {
 
+        Integer serverId = 1;
+
         RootTransaction ba1 = new RootTransaction();
         ba1.begin();
 
@@ -59,14 +61,17 @@ public class SubordinateTest {
         Assert.assertEquals(null, ConfigParticipant.getPersistedValue("1"));
         Assert.assertEquals(null, ConfigParticipant.getPersistedValue("2"));
 
-        Integer serverId = 1;
-        Uid rootTransactionUid = new Uid();
-        SubordinateTransaction subordinateTransaction = SubordinateTransactionImporter.getSubordinateTransaction(serverId, rootTransactionUid);
-        subordinateTransaction.begin();
-        SubordinateParticipantStub subordinateParticipantStub = new SubordinateParticipantStub(serverId, subordinateTransaction.get_uid());
 
+
+        SubordinateTransaction subordinateTransaction = SubordinateTransactionImporter.getSubordinateTransaction(serverId, null);
+        subordinateTransaction.begin();
+        //Get subordinate Uid and pass to parent.
+        Uid subordinateUid = subordinateTransaction.get_uid();
+
+        SubordinateParticipantStub subordinateParticipantStub = new SubordinateParticipantStub(serverId, subordinateUid);
         ba1.add(subordinateParticipantStub);
 
+        
         ConfigParticipant dummySubRecord1 = new ConfigParticipant("sub-1");
         ConfigParticipant dummySubRecord2 = new ConfigParticipant("sub-2");
         subordinateTransaction.add(dummySubRecord1);
