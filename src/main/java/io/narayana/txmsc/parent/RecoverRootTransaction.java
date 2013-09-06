@@ -6,59 +6,56 @@ import com.arjuna.ats.arjuna.logging.tsLogger;
 import com.arjuna.ats.internal.arjuna.recovery.AtomicActionExpiryScanner;
 
 /**
+ * This class is used at recovery-time to provide an operation for replaying the second phase of the protocol.
+ *
  * @author paul.robinson@redhat.com 01/09/2013
  */
 public class RecoverRootTransaction extends RootTransaction {
 
-    /**
-     * Re-creates/activates an AtomicAction for the specified
-     * transaction Uid.
-     */
-    public RecoverRootTransaction(Uid rcvUid, int theStatus) {
+    //he Status of the transaction according to the log.
+    private int status;
 
-        super(rcvUid);
-        _theStatus = theStatus;
-        _activated = activate();
+    // Flag to indicate that this transaction has been re-activated successfully.
+    private boolean activatedResult = false;
+
+    /**
+     * Re-create an existing Root Transaction, re-loading it from the object store.
+     *
+     * @param uid    the Uid of the transaction being re-created
+     * @param status the Status of the transaction according to the log.
+     */
+    public RecoverRootTransaction(Uid uid, int status) {
+
+        super(uid);
+        this.status = status;
+        activatedResult = activate();
     }
 
     /**
-     * Replays phase 2 of the commit protocol.
+     * Replays phase 2 of the commit protocol, using the status to decide whether to commit or rollback.
      */
     public void replayPhase2() {
 
-        if (tsLogger.logger.isDebugEnabled()) {
-            tsLogger.logger.debug("RecoverRootTransaction.replayPhase2 recovering " + get_uid() + " ActionStatus is " + ActionStatus.stringForm(_theStatus));
-        }
-
-        if (_activated) {
-            if ((_theStatus == ActionStatus.PREPARED) ||
-                    (_theStatus == ActionStatus.COMMITTING) ||
-                    (_theStatus == ActionStatus.COMMITTED) ||
-                    (_theStatus == ActionStatus.H_COMMIT) ||
-                    (_theStatus == ActionStatus.H_MIXED) ||
-                    (_theStatus == ActionStatus.H_HAZARD)) {
-                super.phase2Commit(_reportHeuristics);
-            } else if ((_theStatus == ActionStatus.ABORTED) ||
-                    (_theStatus == ActionStatus.H_ROLLBACK) ||
-                    (_theStatus == ActionStatus.ABORTING) ||
-                    (_theStatus == ActionStatus.ABORT_ONLY)) {
-                super.phase2Abort(_reportHeuristics);
+        if (activatedResult) {
+            if ((status == ActionStatus.PREPARED) ||
+                    (status == ActionStatus.COMMITTING) ||
+                    (status == ActionStatus.COMMITTED) ||
+                    (status == ActionStatus.H_COMMIT) ||
+                    (status == ActionStatus.H_MIXED) ||
+                    (status == ActionStatus.H_HAZARD)) {
+                super.phase2Commit(true);
+            } else if ((status == ActionStatus.ABORTED) ||
+                    (status == ActionStatus.H_ROLLBACK) ||
+                    (status == ActionStatus.ABORTING) ||
+                    (status == ActionStatus.ABORT_ONLY)) {
+                super.phase2Abort(true);
             } else {
-                tsLogger.i18NLogger.warn_recovery_RecoverAtomicAction_2(ActionStatus.stringForm(_theStatus));
+                //todo: unexpected status, take apropriate action.
             }
 
-            if (tsLogger.logger.isDebugEnabled()) {
-                tsLogger.logger.debug("RecoverRootTransaction.replayPhase2( " + get_uid() + " )  finished");
-            }
-        } else {
-            tsLogger.i18NLogger.warn_recovery_RecoverAtomicAction_4(get_uid());
-
-           /*
-          * Failure to activate so move the log. Unlikely to get better automatically!
-          */
+        } else { //Failure to activate so move the log. Unlikely to get better automatically!
 
             AtomicActionExpiryScanner scanner = new AtomicActionExpiryScanner();
-
             try {
                 scanner.moveEntry(get_uid());
             } catch (final Exception ex) {
@@ -66,16 +63,5 @@ public class RecoverRootTransaction extends RootTransaction {
             }
         }
     }
-
-    // Current transaction status
-    // (retrieved from the TransactionStatusManager)
-    private int _theStatus;
-
-    // Flag to indicate that this transaction has been re-activated
-    // successfully.
-    private boolean _activated = false;
-
-    // whether heuristic reporting on phase 2 commit is enabled.
-    private boolean _reportHeuristics = true;
 
 }

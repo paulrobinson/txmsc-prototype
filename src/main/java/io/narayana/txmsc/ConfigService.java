@@ -33,52 +33,103 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * This is a simple service representing the server's configuration service. It allows a configuration value to be changed
+ * within the scope of a transaction. This functionality is simulated and the implementation should not be considered
+ * as the recommended way to implement a transactional resource.
+ *
  * @author paul.robinson@redhat.com 07/08/2013
  */
 public class ConfigService extends AbstractRecord {
 
+    /**
+     * A name to identify this instance of the service in the logging.
+     */
     private String name;
 
+    /**
+     * Whether to throw an java.lang.Error in the commit method.
+     */
     private boolean failCommit = false;
 
+    /**
+     * The state managed by the resource. Due to the simplistic approach taken, this state is shared between all instances of the resource.
+     */
     private static Map<String, String> persistedValues = new HashMap<String, String>();
 
+    /**
+     * The shadow state of the resource.
+     */
     private String key;
     private String newValue;
 
+    /**
+     * no-args constructor, used during recovery time.
+     */
     public ConfigService() {
 
         this.name = "recovery";
     }
 
+    /**
+     * Create a named instance of the service.
+     *
+     * @param name the name to identify this instance during logging.
+     */
     public ConfigService(String name) {
 
         this.name = name;
     }
 
+    /**
+     * Create a named instance of the service and specify if it should fail during commit.
+     *
+     * @param name the name to identify this instance during logging.
+     * @param failCommit if true, will throw a java.lang.error during commit. This simulates a failure and is useful for testing recovery.
+     */
     public ConfigService(String name, boolean failCommit) {
 
         this.name = name;
         this.failCommit = failCommit;
     }
 
+    /**
+     * Business method, to propose a new configuration value. It is not 'persisted' until the transaction commits.
+     * @param key The key to update
+     * @param newValue the value to update the key to.
+     */
     public void setNewValue(String key, String newValue) {
 
         this.key = key;
         this.newValue = newValue;
     }
 
-    public static String getPersistedValue(String key) {
+    /**
+     * Get the committed value for the specified key.
+     *
+     * @param key the key to get the value for.
+     * @return The committed value associated with the key.
+     */
+    public static String getCommittedValue(String key) {
 
         return persistedValues.get(key);
     }
 
+    /**
+     * Remove all state. This happens immediately and is intended to be used outside of a transaction.
+     * This method is useful for resetting the state between tests.
+     */
     public static void reset() {
 
         persistedValues = new HashMap<String, String>();
     }
 
-
+    /**
+     * Serialise the state of the record, ready for it being written to the object-store.
+     *
+     * @param os the OutputObjectStream to write the state to.
+     * @param i
+     * @return boolean representing success/failure.
+     */
     @Override
     public boolean save_state(OutputObjectState os, int i) {
 
@@ -99,6 +150,13 @@ public class ConfigService extends AbstractRecord {
         return true;
     }
 
+    /**
+     * Called when restoring the state of the record from the object-store during recovery.
+     *
+     * @param os the InputObjectState to read the state from.
+     * @param i
+     * @return boolean representing success/failure.
+     */
     @Override
     public boolean restore_state(InputObjectState os, int i) {
 
@@ -154,6 +212,9 @@ public class ConfigService extends AbstractRecord {
         System.out.println(message);
     }
 
+    /**
+     * Simulates a failure.
+     */
     private void fail() {
 
         final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
@@ -162,12 +223,20 @@ public class ConfigService extends AbstractRecord {
         throw new Error("Intentional Error");
     }
 
-
+    /**
+     * Enables logging for this record.
+     * @return
+     */
     public boolean doSave() {
 
         return true;
     }
 
+    /**
+     * Simulates the returning of a participant to enlist in the transaction. Just returns 'this' as the ConfigService
+     * class also implements the participant logic.
+     * @return
+     */
     public AbstractRecord getParticipant() {
         return this;
     }
@@ -179,25 +248,18 @@ public class ConfigService extends AbstractRecord {
 
     @Override
     public Object value() {
-
-        log();
-        // return a HeuristicInformation if we had one.
         return null;
     }
 
     @Override
     public void setValue(Object o) {
 
-        log();
-        //todo: is this linked to the "value" method?
     }
-
 
     @Override
     public int nestedAbort() {
 
         log();
-
         return TwoPhaseOutcome.FINISH_OK;
     }
 
@@ -205,7 +267,6 @@ public class ConfigService extends AbstractRecord {
     public int nestedCommit() {
 
         log();
-
         return TwoPhaseOutcome.FINISH_OK;
     }
 
@@ -213,7 +274,6 @@ public class ConfigService extends AbstractRecord {
     public int nestedPrepare() {
 
         log();
-
         return TwoPhaseOutcome.FINISH_OK;
     }
 
@@ -228,53 +288,34 @@ public class ConfigService extends AbstractRecord {
     public int topLevelPrepare() {
 
         log();
-
         return TwoPhaseOutcome.PREPARE_OK;
     }
 
     @Override
     public void merge(AbstractRecord a) {
-
-        log();
-
     }
 
     @Override
     public void alter(AbstractRecord a) {
-
-        log();
-
     }
 
     @Override
     public boolean shouldAdd(AbstractRecord a) {
-
-        log();
-
-        return true;
+        return false;
     }
 
     @Override
     public boolean shouldAlter(AbstractRecord a) {
-
-        log();
-
         return false;
     }
 
     @Override
     public boolean shouldMerge(AbstractRecord a) {
-
-        log();
-
         return false;
     }
 
     @Override
     public boolean shouldReplace(AbstractRecord a) {
-
-        log();
-
         return false;
     }
 

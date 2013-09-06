@@ -27,45 +27,67 @@ import com.arjuna.ats.arjuna.coordinator.ActionType;
 import com.arjuna.ats.arjuna.coordinator.BasicAction;
 
 /**
- * Need to extend BasicAction as BasicAction's Begin and End methods are protected.
- * <p/>
- * Why can't BasicAction be made non-abstract
- * Can we use TwoPhaseCoordinator?
- * Yes, but supports nesting which could cause problems.
- * Why can't we just use AtomicAction for this?
- * It does thread association that we don't need.
- * Does this really matter, currently looks like it will save a lot of code as AtomicActionRecoveryModule can't
- * easily be extended.
+ * Represents the Root Transaction.
  *
  * @author paul.robinson@redhat.com 07/08/2013
  */
 public class RootTransaction extends BasicAction {
 
+    /**
+     * Creates a new instance of a Root Transaction. This instance can be used once-only. After the transaction
+     * terminates it must not be re-used to begin a new transaction.
+     *
+     */
     public RootTransaction() {
 
         super(ActionType.TOP_LEVEL);
     }
+    /**
+     * Re-create an existing Root Transaction, re-loading it from the object store.
+     *
+     * @param uid
+     */
+    public RootTransaction(Uid uid) {
 
-    public RootTransaction(Uid objUid) {
-
-        super(objUid, ActionType.TOP_LEVEL);
+        //Pass in ActionType.TOP_LEVEL to ensure that nesting is not attempted.
+        super(uid, ActionType.TOP_LEVEL);
     }
 
+    /**
+     * Begin the Root Transaction.
+     *
+     * @return the status of the operation.
+     */
     public int begin() {
 
         return super.Begin(null);
     }
 
+    /**
+     * Commit the Root Transaction.
+     *
+     * @return the status of the operation.
+     */
     public int commit() {
 
         return super.End(true);
     }
 
+    /**
+     * Rollback the Subordinate Transaction.
+     *
+     * @return the status of the operation.
+     */
     public int rollback() {
 
         return super.Abort();
     }
 
+    /**
+     * Returns ths the identifier for transactions of this type.
+     *
+     * @return
+     */
     public String type() {
 
         return "/StateManager/RootTransaction";

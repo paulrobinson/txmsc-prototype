@@ -4,6 +4,11 @@ import com.arjuna.ats.arjuna.common.Uid;
 import com.arjuna.ats.internal.arjuna.recovery.BasicActionRecoveryModule;
 
 /**
+ * This Recovery Module is responsible for driving recovery of Root Transactions and the enlisted Subordinate Transactions.
+ *
+ * It provides the same functionality as BasicActionRecoveryModule, but modified to use the required Transaction Type and
+ * to invoke the appropriate code for replaying phase two.
+ *
  * @author paul.robinson@redhat.com 01/09/2013
  */
 public class RootTransactionRecoveryModule extends BasicActionRecoveryModule {
@@ -19,6 +24,4 @@ public class RootTransactionRecoveryModule extends BasicActionRecoveryModule {
         RecoverRootTransaction rcvRootTransaction = new RecoverRootTransaction(recoverUid, theStatus);
         rcvRootTransaction.replayPhase2();
     }
-
-    //do orphan detection of subordinates here
 }

@@ -34,6 +34,9 @@ import io.narayana.txmsc.child.SubordinateParticipant;
 import java.io.IOException;
 
 /**
+ * The SubordinateParticipantStub is a record that is enlisted in the Root Transaction. It maintains a remote mapping
+ * to the Subordinate Transaction and drives it through the 2PC protocol.
+ *
  * @author paul.robinson@redhat.com 07/08/2013
  */
 public class SubordinateParticipantStub extends AbstractRecord {
@@ -43,17 +46,30 @@ public class SubordinateParticipantStub extends AbstractRecord {
 
     private SubordinateParticipant subordinateParticipant;
 
-    //Used at recovery time to create the instance
+    /**
+     * no-args constructed used during recovery to create a new instance, prior to restoring the state from the object-store.
+     */
     public SubordinateParticipantStub() {
     }
 
-    public SubordinateParticipantStub(Integer serverId, Uid subordinateUid) {
+    /**
+     * Creates a new instance and connects to the already running Subordinate Transaction on the child.
+     *
+     * @param subordinateUid the Uid of the subordinate transaction to connect to.
+     */
+    public SubordinateParticipantStub(Uid subordinateUid) {
 
-        this.serverId = serverId;
         this.subordinateUid = subordinateUid;
-        this.subordinateParticipant = SubordinateParticipant.connect(serverId, subordinateUid);
+        this.subordinateParticipant = SubordinateParticipant.connect(NodeConfig.SERVER_ID, subordinateUid);
+        this.serverId = NodeConfig.SERVER_ID;
     }
 
+    /**
+     * Returns the RecordType.
+     *
+     * @see com.arjuna.ats.arjuna.coordinator.RecordType
+     * @return the RecordType
+     */
     @Override
     public int typeIs() {
 
@@ -64,29 +80,38 @@ public class SubordinateParticipantStub extends AbstractRecord {
     }
 
     @Override
-    //todo: look at XAResourceRecord and see what is done there.
+    //todo: need to know what to do here. JavaDoc says that it should return a HeuristicInformation in the case of a heuristic.
+    // Other examples, seem to return something else. See ParticipantRecord and XAResourceRecord.
     public Object value() {
 
-        log();
-        // return a HeuristicInformation if we had one.
         return null;
     }
 
     @Override
+    //todo: See value()
     public void setValue(Object o) {
 
-        log();
-        //todo: is this linked to the "value" method?
     }
 
 
+    /**
+     * Enables logging for this Record.
+     *
+     * @return
+     */
     @Override
     public boolean doSave() {
 
         return true;
     }
 
-
+    /**
+     * Serialise the state of the record, ready for it being written to the object-store.
+     *
+     * @param os the OutputObjectStream to write the state to.
+     * @param i
+     * @return boolean representing success/failure.
+     */
     @Override
     public boolean save_state(OutputObjectState os, int i) {
 
@@ -107,6 +132,13 @@ public class SubordinateParticipantStub extends AbstractRecord {
         return true;
     }
 
+    /**
+     * Called when restoring the state of the record from the object-store during recovery.
+     *
+     * @param os the InputObjectState to read the state from.
+     * @param i
+     * @return boolean representing success/failure.
+     */
     @Override
     public boolean restore_state(InputObjectState os, int i) {
 
@@ -121,7 +153,7 @@ public class SubordinateParticipantStub extends AbstractRecord {
             subordinateUid = UidHelper.unpackFrom(os);
 
             //Lookup the remote participant, ensuring it restores from the recovery log
-            subordinateParticipant = SubordinateParticipant.recoverThenConnect(serverId, subordinateUid);
+            subordinateParticipant = SubordinateParticipant.recoverThenConnect(subordinateUid);
         } catch (IOException e) {
             return false;
         }
@@ -129,11 +161,9 @@ public class SubordinateParticipantStub extends AbstractRecord {
     }
 
     @Override
-    //todo: look at what XAResourceRecord does, as this is not allowed
     public int nestedAbort() {
 
         log();
-
         return TwoPhaseOutcome.FINISH_OK;
     }
 
@@ -141,7 +171,6 @@ public class SubordinateParticipantStub extends AbstractRecord {
     public int nestedCommit() {
 
         log();
-
         return TwoPhaseOutcome.FINISH_OK;
     }
 
@@ -149,8 +178,6 @@ public class SubordinateParticipantStub extends AbstractRecord {
     public int nestedPrepare() {
 
         log();
-
-
         return TwoPhaseOutcome.FINISH_OK;
     }
 
@@ -179,7 +206,6 @@ public class SubordinateParticipantStub extends AbstractRecord {
     }
 
     @Override
-    //todo: look at what XAResourceRecord does, as this is not allowed
     public void merge(AbstractRecord a) {
     }
 
@@ -191,7 +217,7 @@ public class SubordinateParticipantStub extends AbstractRecord {
     @Override
     public boolean shouldAdd(AbstractRecord a) {
 
-        return true;
+        return false;
     }
 
     @Override

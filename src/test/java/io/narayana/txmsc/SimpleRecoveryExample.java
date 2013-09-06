@@ -52,8 +52,8 @@ public class SimpleRecoveryExample {
 
         Thread.sleep(5000);
 
-        System.out.println(ConfigService.getPersistedValue("1"));
-        System.out.println(ConfigService.getPersistedValue("2"));
+        System.out.println(ConfigService.getCommittedValue("1"));
+        System.out.println(ConfigService.getCommittedValue("2"));
 
         RecoverySetup.stopRecovery();
     }

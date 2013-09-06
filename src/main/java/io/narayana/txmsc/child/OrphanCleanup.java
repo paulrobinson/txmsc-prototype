@@ -14,6 +14,13 @@ import com.arjuna.ats.internal.arjuna.common.UidHelper;
  */
 public class OrphanCleanup {
 
+    /**
+     * Orphan detection is driven by the parent after it has recovered all the transactions it knows about.
+     * After which, this method is invoked, to request that the child rollback all the transactions in the log initiated
+     * by the requesting server, and of the type 'SubordinateTransaction'.
+     *
+     * @param serverId The id of the server that initiated the request.
+     */
     public static void doCleanup(Integer serverId) {
 
         try {

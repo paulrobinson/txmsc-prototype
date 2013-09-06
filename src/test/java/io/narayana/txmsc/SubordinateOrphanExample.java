@@ -12,7 +12,7 @@ import io.narayana.txmsc.child.SubordinateTransactionImporter;
 /**
  * @author paul.robinson@redhat.com 08/08/2013
  */
-public class SubordinateRecoveryExample {
+public class SubordinateOrphanExample {
 
     public static void main(String[] args) throws Exception {
 
@@ -85,8 +85,8 @@ public class SubordinateRecoveryExample {
 
         Thread.sleep(5000);
 
-        System.out.println(ConfigService.getCommittedValue("child-config"));
-        System.out.println(ConfigService.getCommittedValue("parent-config"));
+        System.out.println(ConfigService.getPersistedValue("child-config"));
+        System.out.println(ConfigService.getPersistedValue("parent-config"));
 
         RecoverySetup.stopRecovery();
     }

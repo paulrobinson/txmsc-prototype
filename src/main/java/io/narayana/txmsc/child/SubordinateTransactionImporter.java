@@ -28,20 +28,24 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * Utility class for caching Subordinate Transactions in memory.
+ *
  * @author paul.robinson@redhat.com 07/08/2013
  */
 public class SubordinateTransactionImporter {
 
-
-    //todo: do we actually need this in-memmory mapping?
+    /**
+     * A collection of Subordinate Transactions keyed on their Uid and the ServerId that initiated the Root Transaction.
+     */
     private static Map<Integer, Map<Uid, SubordinateTransaction>> transactions = new ConcurrentHashMap<Integer, Map<Uid, SubordinateTransaction>>();
 
+    /**
+     * Create a new Subordinate Transaction and store it in the cache.
+     *
+     * @param serverId The server ID of the server that initiated the transaction.
+     * @return The newly created Subordinate Transaction
+     */
     public static SubordinateTransaction createSubordinateTransaction(Integer serverId) {
-        return getSubordinateTransaction(serverId, null);
-    }
-
-
-    public static SubordinateTransaction getSubordinateTransaction(Integer serverId, Uid subordinateUid) {
 
         if (serverId == null)
             throw new IllegalArgumentException();
@@ -52,16 +56,31 @@ public class SubordinateTransactionImporter {
             transactions.put(serverId, subordinates);
         }
 
-        SubordinateTransaction imported;
-        if (subordinateUid == null) {
-            imported = new SubordinateTransaction(serverId);
-            subordinates.put(imported.get_uid(), imported);
-        }
-        else {
-            imported = subordinates.get(subordinateUid);
-        }
+        SubordinateTransaction imported = new SubordinateTransaction(serverId);
+        subordinates.put(imported.get_uid(), imported);
 
         return imported;
+    }
+
+
+    /**
+     * Lookup an existing Subordinate transaction.
+     *
+     * @param serverId
+     * @param subordinateUid
+     * @return
+     */
+    public static SubordinateTransaction getSubordinateTransaction(Integer serverId, Uid subordinateUid) {
+
+        if (serverId == null || subordinateUid == null)
+            throw new IllegalArgumentException();
+
+        Map<Uid, SubordinateTransaction> subordinates = transactions.get(serverId);
+        if (subordinates == null) {
+            return null;
+        }
+
+        return subordinates.get(subordinateUid);
     }
 
 }

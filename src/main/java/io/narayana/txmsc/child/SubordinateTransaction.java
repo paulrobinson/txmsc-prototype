@@ -31,6 +31,8 @@ import com.arjuna.ats.arjuna.state.OutputObjectState;
 import java.io.IOException;
 
 /**
+ * Represents the subordinate transaction running on the child-side.
+ *
  * @author paul.robinson@redhat.com 07/08/2013
  */
 public class SubordinateTransaction extends BasicAction {
@@ -41,28 +43,56 @@ public class SubordinateTransaction extends BasicAction {
 
     }
 
+    /**
+     * Creates a new instance of a new Subordinate Transaction. This instance can be used once-only. After the transaction
+     * terminates it must not be re-used to begin a new transaction.
+     *
+     * @param serverId the ID of the parent that initiated the root transaction.
+     */
     public SubordinateTransaction(Integer serverId) {
 
         super(ActionType.TOP_LEVEL);
         this.serverId = serverId;
     }
 
+    /**
+     * Re-create an existing Subordinate Transaction, re-loading it from the object store.
+     *
+     * @param uid
+     */
     public SubordinateTransaction(Uid uid) {
 
         super(uid);
         activate();
     }
 
+    /**
+     * Returns ths the identifier for transactions of this type.
+     *
+     * @return
+     */
     public String type() {
 
         return "/StateManager/SubordinateTransaction";
     }
 
+    /**
+     * Get the Server ID of the parent who initiated the root transaction.
+     *
+     * @return The server ID.
+     */
     public Integer getServerId() {
 
         return serverId;
     }
 
+    /**
+     * Serialise the state of the transaction, ready for it being written to the object-store.
+     *
+     * @param os the OutputObjectStream to write the state to.
+     * @param i
+     * @return boolean representing success/failure.
+     */
     @Override
     public boolean save_state(OutputObjectState os, int i) {
 
@@ -80,6 +110,13 @@ public class SubordinateTransaction extends BasicAction {
         return true;
     }
 
+    /**
+     * Called when restoring the state of the transaction from the object-store during recovery.
+     *
+     * @param os the InputObjectState to read the state from.
+     * @param i
+     * @return boolean representing success/failure.
+     */
     @Override
     public boolean restore_state(InputObjectState os, int i) {
 
@@ -95,22 +132,42 @@ public class SubordinateTransaction extends BasicAction {
         return true;
     }
 
+    /**
+     * Begin the Subordinate Transaction.
+     *
+     * @return the status of the operation.
+     */
     public int begin() {
 
         return super.Begin(null);
     }
 
+    /**
+     * Prepare the Subordinate Transaction
+     *
+     * @return the status of the operation.
+     */
     public int prepare() {
 
         return super.prepare(true);
     }
 
+    /**
+     * commit the Subordinate Transaction
+     *
+     * @return the status of the operation.
+     */
     public int commit() {
 
         super.phase2Commit(true);
         return super.status();
     }
 
+    /**
+     * Rollback the Subordinate Transaction
+     *
+     * @return the status of the operation.
+     */
     public int rollback() {
 
         super.phase2Abort(true);

@@ -57,17 +57,17 @@ public class SubordinateTest {
         configService1.setNewValue("1", "newVal1");
         configService2.setNewValue("2", "newVal2");
 
-        Assert.assertEquals(null, ConfigService.getPersistedValue("1"));
-        Assert.assertEquals(null, ConfigService.getPersistedValue("2"));
+        Assert.assertEquals(null, ConfigService.getCommittedValue("1"));
+        Assert.assertEquals(null, ConfigService.getCommittedValue("2"));
 
 
 
-        SubordinateTransaction subordinateTransaction = SubordinateTransactionImporter.getSubordinateTransaction(NodeConfig.SERVER_ID, null);
+        SubordinateTransaction subordinateTransaction = SubordinateTransactionImporter.createSubordinateTransaction(NodeConfig.SERVER_ID);
         subordinateTransaction.begin();
         //Get subordinate Uid and pass to parent.
         Uid subordinateUid = subordinateTransaction.get_uid();
 
-        SubordinateParticipantStub subordinateParticipantStub = new SubordinateParticipantStub(NodeConfig.SERVER_ID, subordinateUid);
+        SubordinateParticipantStub subordinateParticipantStub = new SubordinateParticipantStub(subordinateUid);
         ba1.add(subordinateParticipantStub);
 
 
@@ -79,15 +79,15 @@ public class SubordinateTest {
         dummySubRecord1.setNewValue("sub-1", "sub-newVal1");
         dummySubRecord2.setNewValue("sub-2", "sub-newVal2");
 
-        Assert.assertEquals(null, ConfigService.getPersistedValue("sub-1"));
-        Assert.assertEquals(null, ConfigService.getPersistedValue("sub-2"));
+        Assert.assertEquals(null, ConfigService.getCommittedValue("sub-1"));
+        Assert.assertEquals(null, ConfigService.getCommittedValue("sub-2"));
 
         ba1.commit();
 
-        Assert.assertEquals("newVal1", ConfigService.getPersistedValue("1"));
-        Assert.assertEquals("newVal2", ConfigService.getPersistedValue("2"));
-        Assert.assertEquals("sub-newVal1", ConfigService.getPersistedValue("sub-1"));
-        Assert.assertEquals("sub-newVal2", ConfigService.getPersistedValue("sub-2"));
+        Assert.assertEquals("newVal1", ConfigService.getCommittedValue("1"));
+        Assert.assertEquals("newVal2", ConfigService.getCommittedValue("2"));
+        Assert.assertEquals("sub-newVal1", ConfigService.getCommittedValue("sub-1"));
+        Assert.assertEquals("sub-newVal2", ConfigService.getCommittedValue("sub-2"));
 
     }
 }

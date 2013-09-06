@@ -6,6 +6,8 @@ import com.arjuna.ats.arjuna.coordinator.abstractrecord.RecordTypeMap;
 import io.narayana.txmsc.parent.SubordinateParticipantStub;
 
 /**
+ * The mapping used by the recovery manager to associate the RecordType with the Record class.
+ *
  * @author paul.robinson@redhat.com 01/09/2013
  */
 public class SubordinateParticipantStubRecordTypeMap implements RecordTypeMap {
@@ -19,7 +21,7 @@ public class SubordinateParticipantStubRecordTypeMap implements RecordTypeMap {
     @Override
     public int getType() {
 
-        //todo: add comment...
+        //See RecordType. Essentially, I've placed this record at the start. However, I don;t think the order matters for our usage.
         return RecordType.USER_DEF_FIRST0;
     }
 }
