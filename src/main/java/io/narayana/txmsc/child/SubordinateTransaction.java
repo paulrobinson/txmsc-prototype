@@ -37,6 +37,10 @@ public class SubordinateTransaction extends BasicAction {
 
     private Integer serverId;
 
+    public SubordinateTransaction() {
+
+    }
+
     public SubordinateTransaction(Integer serverId) {
 
         super(ActionType.TOP_LEVEL);
@@ -52,6 +56,11 @@ public class SubordinateTransaction extends BasicAction {
     public String type() {
 
         return "/StateManager/SubordinateTransaction";
+    }
+
+    public Integer getServerId() {
+
+        return serverId;
     }
 
     @Override

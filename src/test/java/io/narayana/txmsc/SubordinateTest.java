@@ -24,6 +24,7 @@ package io.narayana.txmsc;
 
 import com.arjuna.ats.arjuna.common.Uid;
 import io.narayana.txmsc.child.SubordinateTransaction;
+import io.narayana.txmsc.parent.NodeConfig;
 import io.narayana.txmsc.parent.RootTransaction;
 import io.narayana.txmsc.parent.SubordinateParticipantStub;
 import io.narayana.txmsc.child.SubordinateTransactionImporter;
@@ -45,8 +46,6 @@ public class SubordinateTest {
     @Test
     public void testSimple() throws Exception {
 
-        Integer serverId = 1;
-
         RootTransaction ba1 = new RootTransaction();
         ba1.begin();
 
@@ -63,12 +62,12 @@ public class SubordinateTest {
 
 
 
-        SubordinateTransaction subordinateTransaction = SubordinateTransactionImporter.getSubordinateTransaction(serverId, null);
+        SubordinateTransaction subordinateTransaction = SubordinateTransactionImporter.getSubordinateTransaction(NodeConfig.SERVER_ID, null);
         subordinateTransaction.begin();
         //Get subordinate Uid and pass to parent.
         Uid subordinateUid = subordinateTransaction.get_uid();
 
-        SubordinateParticipantStub subordinateParticipantStub = new SubordinateParticipantStub(serverId, subordinateUid);
+        SubordinateParticipantStub subordinateParticipantStub = new SubordinateParticipantStub(NodeConfig.SERVER_ID, subordinateUid);
         ba1.add(subordinateParticipantStub);
 
 

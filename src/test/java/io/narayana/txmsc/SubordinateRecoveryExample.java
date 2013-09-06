@@ -3,6 +3,7 @@ package io.narayana.txmsc;
 import com.arjuna.ats.arjuna.common.Uid;
 import com.arjuna.ats.arjuna.coordinator.abstractrecord.RecordTypeManager;
 import io.narayana.txmsc.child.SubordinateTransaction;
+import io.narayana.txmsc.parent.NodeConfig;
 import io.narayana.txmsc.parent.RootTransaction;
 import io.narayana.txmsc.parent.SubordinateParticipantStub;
 import io.narayana.txmsc.parent.SubordinateParticipantStubRecordTypeMap;
@@ -29,8 +30,6 @@ public class SubordinateRecoveryExample {
         /*
             PARENT SIDE
          */
-        Integer parentServerId = 1;
-
         RootTransaction rootTransaction = new RootTransaction();
         rootTransaction.begin();
 
@@ -44,7 +43,7 @@ public class SubordinateRecoveryExample {
         /*
             CHILD SIDE (Propagated transaction context)
          */
-        SubordinateTransaction subordinateTransaction = SubordinateTransactionImporter.createSubordinateTransaction(parentServerId);
+        SubordinateTransaction subordinateTransaction = SubordinateTransactionImporter.createSubordinateTransaction(NodeConfig.SERVER_ID);
         subordinateTransaction.begin();
 
         ConfigParticipant childsConfigService = new ConfigParticipant("childConfigService", true);
@@ -60,8 +59,7 @@ public class SubordinateRecoveryExample {
         /*
             PARENT SIDE
          */
-        //todo: remove the parentServerId
-        SubordinateParticipantStub subordinateParticipantStub = new SubordinateParticipantStub(parentServerId, subordinateUid);
+        SubordinateParticipantStub subordinateParticipantStub = new SubordinateParticipantStub(NodeConfig.SERVER_ID, subordinateUid);
         rootTransaction.add(subordinateParticipantStub);
 
         try {

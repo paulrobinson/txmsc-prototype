@@ -5,6 +5,7 @@ import com.arjuna.ats.arjuna.recovery.RecoveryManager;
 import com.arjuna.ats.arjuna.recovery.RecoveryModule;
 import com.arjuna.common.internal.util.propertyservice.BeanPopulator;
 import io.narayana.txmsc.parent.RootTransactionRecoveryModule;
+import io.narayana.txmsc.parent.SubordinateTransactionOrphanDetector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ public class RecoverySetup {
 
         List<RecoveryModule> recoveryModules = new ArrayList<RecoveryModule>();
         recoveryModules.add(new RootTransactionRecoveryModule());
+        recoveryModules.add(new SubordinateTransactionOrphanDetector());
         BeanPopulator.getDefaultInstance(RecoveryEnvironmentBean.class).setRecoveryModules(recoveryModules);
 
         recoveryManager = RecoveryManager.manager();
