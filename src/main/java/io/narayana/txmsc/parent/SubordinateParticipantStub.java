@@ -43,6 +43,7 @@ public class SubordinateParticipantStub extends AbstractRecord {
 
     private Integer serverId;
     private Uid subordinateUid;
+    private boolean failAfterSubordinatePrepare = false;
 
     private SubordinateParticipant subordinateParticipant;
 
@@ -62,6 +63,23 @@ public class SubordinateParticipantStub extends AbstractRecord {
         this.subordinateUid = subordinateUid;
         this.subordinateParticipant = SubordinateParticipant.connect(NodeConfig.SERVER_ID, subordinateUid);
         this.serverId = NodeConfig.SERVER_ID;
+    }
+
+    /**
+     * Creates a new instance and connects to the already running Subordinate Transaction on the child.
+     *
+     * Provides an option to tell the prepare method to fail (System.exit()) after the subordinate prepares. This is
+     * useful for creating orphaned Subordinate Transactions when testing the SubordinateTransactionOrphanDetector
+     *
+     * @param subordinateUid the Uid of the subordinate transaction to connect to.
+     * @param failAfterSubordinatePrepare Whether to fail after preparing the subordinate
+     */
+    public SubordinateParticipantStub(Uid subordinateUid, boolean failAfterSubordinatePrepare) {
+
+        this.subordinateUid = subordinateUid;
+        this.subordinateParticipant = SubordinateParticipant.connect(NodeConfig.SERVER_ID, subordinateUid);
+        this.serverId = NodeConfig.SERVER_ID;
+        this.failAfterSubordinatePrepare = failAfterSubordinatePrepare;
     }
 
     /**
@@ -202,7 +220,12 @@ public class SubordinateParticipantStub extends AbstractRecord {
 
         log();
         //Simulates a remote call
-        return subordinateParticipant.prepare();
+        int result = subordinateParticipant.prepare();
+
+        if (failAfterSubordinatePrepare) {
+            System.exit(1);
+        }
+        return result;
     }
 
     @Override

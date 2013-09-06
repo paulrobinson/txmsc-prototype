@@ -3,11 +3,11 @@ package io.narayana.txmsc;
 import com.arjuna.ats.arjuna.common.Uid;
 import com.arjuna.ats.arjuna.coordinator.abstractrecord.RecordTypeManager;
 import io.narayana.txmsc.child.SubordinateTransaction;
+import io.narayana.txmsc.child.SubordinateTransactionImporter;
 import io.narayana.txmsc.parent.NodeConfig;
 import io.narayana.txmsc.parent.RootTransaction;
 import io.narayana.txmsc.parent.SubordinateParticipantStub;
 import io.narayana.txmsc.parent.SubordinateParticipantStubRecordTypeMap;
-import io.narayana.txmsc.child.SubordinateTransactionImporter;
 
 /**
  * @author paul.robinson@redhat.com 08/08/2013
@@ -59,7 +59,7 @@ public class SubordinateOrphanExample {
         /*
             PARENT SIDE
          */
-        SubordinateParticipantStub subordinateParticipantStub = new SubordinateParticipantStub(subordinateUid);
+        SubordinateParticipantStub subordinateParticipantStub = new SubordinateParticipantStub(subordinateUid, true);
         rootTransaction.add(subordinateParticipantStub);
 
         try {
@@ -85,8 +85,8 @@ public class SubordinateOrphanExample {
 
         Thread.sleep(5000);
 
-        System.out.println(ConfigService.getPersistedValue("child-config"));
-        System.out.println(ConfigService.getPersistedValue("parent-config"));
+        System.out.println(ConfigService.getCommittedValue("child-config"));
+        System.out.println(ConfigService.getCommittedValue("parent-config"));
 
         RecoverySetup.stopRecovery();
     }
