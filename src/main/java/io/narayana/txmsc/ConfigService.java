@@ -35,7 +35,7 @@ import java.util.Map;
 /**
  * @author paul.robinson@redhat.com 07/08/2013
  */
-public class ConfigParticipant extends AbstractRecord {
+public class ConfigService extends AbstractRecord {
 
     private String name;
 
@@ -46,17 +46,17 @@ public class ConfigParticipant extends AbstractRecord {
     private String key;
     private String newValue;
 
-    public ConfigParticipant() {
+    public ConfigService() {
 
         this.name = "recovery";
     }
 
-    public ConfigParticipant(String name) {
+    public ConfigService(String name) {
 
         this.name = name;
     }
 
-    public ConfigParticipant(String name, boolean failCommit) {
+    public ConfigService(String name, boolean failCommit) {
 
         this.name = name;
         this.failCommit = failCommit;
@@ -166,6 +166,10 @@ public class ConfigParticipant extends AbstractRecord {
     public boolean doSave() {
 
         return true;
+    }
+
+    public AbstractRecord getParticipant() {
+        return this;
     }
 
     /*

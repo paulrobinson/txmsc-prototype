@@ -40,7 +40,7 @@ public class RootTransactionTest {
     @Before
     public void resetData() {
 
-        ConfigParticipant.reset();
+        ConfigService.reset();
         clearLog();
     }
 
@@ -50,21 +50,21 @@ public class RootTransactionTest {
         RootTransaction ba1 = new RootTransaction();
         ba1.begin();
 
-        ConfigParticipant configParticipant1 = new ConfigParticipant("1");
-        ConfigParticipant configParticipant2 = new ConfigParticipant("2");
-        ba1.add(configParticipant1);
-        ba1.add(configParticipant2);
+        ConfigService configService1 = new ConfigService("1");
+        ConfigService configService2 = new ConfigService("2");
+        ba1.add(configService1);
+        ba1.add(configService2);
 
-        configParticipant1.setNewValue("1", "newVal1");
-        configParticipant2.setNewValue("2", "newVal2");
+        configService1.setNewValue("1", "newVal1");
+        configService2.setNewValue("2", "newVal2");
 
-        Assert.assertEquals(null, ConfigParticipant.getPersistedValue("1"));
-        Assert.assertEquals(null, ConfigParticipant.getPersistedValue("2"));
+        Assert.assertEquals(null, ConfigService.getPersistedValue("1"));
+        Assert.assertEquals(null, ConfigService.getPersistedValue("2"));
 
         ba1.commit();
 
-        Assert.assertEquals("newVal1", ConfigParticipant.getPersistedValue("1"));
-        Assert.assertEquals("newVal2", ConfigParticipant.getPersistedValue("2"));
+        Assert.assertEquals("newVal1", ConfigService.getPersistedValue("1"));
+        Assert.assertEquals("newVal2", ConfigService.getPersistedValue("2"));
 
     }
 
@@ -74,16 +74,16 @@ public class RootTransactionTest {
         RootTransaction ba1 = new RootTransaction();
         ba1.begin();
 
-        ConfigParticipant configParticipant1 = new ConfigParticipant("1");
-        ConfigParticipant configParticipant2 = new ConfigParticipant("2", true);
-        ba1.add(configParticipant1);
-        ba1.add(configParticipant2);
+        ConfigService configService1 = new ConfigService("1");
+        ConfigService configService2 = new ConfigService("2", true);
+        ba1.add(configService1);
+        ba1.add(configService2);
 
-        configParticipant1.setNewValue("1", "newVal1");
-        configParticipant2.setNewValue("2", "newVal2");
+        configService1.setNewValue("1", "newVal1");
+        configService2.setNewValue("2", "newVal2");
 
-        Assert.assertEquals(null, ConfigParticipant.getPersistedValue("1"));
-        Assert.assertEquals(null, ConfigParticipant.getPersistedValue("2"));
+        Assert.assertEquals(null, ConfigService.getPersistedValue("1"));
+        Assert.assertEquals(null, ConfigService.getPersistedValue("2"));
 
         try {
             ba1.commit();
@@ -92,8 +92,8 @@ public class RootTransactionTest {
             //expected
         }
 
-        Assert.assertEquals("newVal1", ConfigParticipant.getPersistedValue("1"));
-        Assert.assertEquals(null, ConfigParticipant.getPersistedValue("2"));
+        Assert.assertEquals("newVal1", ConfigService.getPersistedValue("1"));
+        Assert.assertEquals(null, ConfigService.getPersistedValue("2"));
 
         //Now Run recovery and check it worked....
         ConfigParticipantRecordTypeMap map = new ConfigParticipantRecordTypeMap();
@@ -104,8 +104,8 @@ public class RootTransactionTest {
 
         Thread.sleep(5000);
 
-        Assert.assertEquals("newVal1", ConfigParticipant.getPersistedValue("1"));
-        Assert.assertEquals("newVal2", ConfigParticipant.getPersistedValue("2"));
+        Assert.assertEquals("newVal1", ConfigService.getPersistedValue("1"));
+        Assert.assertEquals("newVal2", ConfigService.getPersistedValue("2"));
 
         RecoverySetup.stopRecovery();
     }

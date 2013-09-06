@@ -12,7 +12,7 @@ import com.arjuna.ats.internal.arjuna.common.UidHelper;
  *
  * @author paul.robinson@redhat.com 06/09/2013
  */
-public class RemoteOrphanCleanup {
+public class OrphanCleanup {
 
     public static void doCleanup(Integer serverId) {
 
@@ -42,6 +42,7 @@ public class RemoteOrphanCleanup {
                     if (orphanUid.equals(Uid.nullUid())) {
                         moreUids = false;
                     } else {
+                        //todo: should check first if it's for this serverId, before reloading the entire transaction
                         SubordinateTransaction subordinateTransaction = new SubordinateTransaction(orphanUid);
 
                         //check if it was initiated by the specified server and if so, rollback.

@@ -33,8 +33,8 @@ public class SubordinateRecoveryExample {
         RootTransaction rootTransaction = new RootTransaction();
         rootTransaction.begin();
 
-        ConfigParticipant parentConfigService = new ConfigParticipant("ParentConfigService");
-        rootTransaction.add(parentConfigService);
+        ConfigService parentConfigService = new ConfigService("ParentConfigService");
+        rootTransaction.add(parentConfigService.getParticipant());
 
         //Make the config change
         parentConfigService.setNewValue("parent-config", "newParentConfigValue");
@@ -46,8 +46,8 @@ public class SubordinateRecoveryExample {
         SubordinateTransaction subordinateTransaction = SubordinateTransactionImporter.createSubordinateTransaction(NodeConfig.SERVER_ID);
         subordinateTransaction.begin();
 
-        ConfigParticipant childsConfigService = new ConfigParticipant("childConfigService", true);
-        subordinateTransaction.add(childsConfigService);
+        ConfigService childsConfigService = new ConfigService("childConfigService", true);
+        subordinateTransaction.add(childsConfigService.getParticipant());
 
         //Make the config change
         childsConfigService.setNewValue("child-config", "newChildConfigValue");
@@ -85,8 +85,8 @@ public class SubordinateRecoveryExample {
 
         Thread.sleep(5000);
 
-        System.out.println(ConfigParticipant.getPersistedValue("child-config"));
-        System.out.println(ConfigParticipant.getPersistedValue("parent-config"));
+        System.out.println(ConfigService.getPersistedValue("child-config"));
+        System.out.println(ConfigService.getPersistedValue("parent-config"));
 
         RecoverySetup.stopRecovery();
     }

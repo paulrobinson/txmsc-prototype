@@ -27,13 +27,13 @@ public class SimpleRecoveryExample {
         RootTransaction ba1 = new RootTransaction();
         ba1.begin();
 
-        ConfigParticipant configParticipant1 = new ConfigParticipant("1");
-        ConfigParticipant configParticipant2 = new ConfigParticipant("2", true);
-        ba1.add(configParticipant1);
-        ba1.add(configParticipant2);
+        ConfigService configService1 = new ConfigService("1");
+        ConfigService configService2 = new ConfigService("2", true);
+        ba1.add(configService1.getParticipant());
+        ba1.add(configService2.getParticipant());
 
-        configParticipant1.setNewValue("1", "newVal1");
-        configParticipant2.setNewValue("2", "newVal2");
+        configService1.setNewValue("1", "newVal1");
+        configService2.setNewValue("2", "newVal2");
 
         try {
             ba1.commit();
@@ -52,8 +52,8 @@ public class SimpleRecoveryExample {
 
         Thread.sleep(5000);
 
-        System.out.println(ConfigParticipant.getPersistedValue("1"));
-        System.out.println(ConfigParticipant.getPersistedValue("2"));
+        System.out.println(ConfigService.getPersistedValue("1"));
+        System.out.println(ConfigService.getPersistedValue("2"));
 
         RecoverySetup.stopRecovery();
     }

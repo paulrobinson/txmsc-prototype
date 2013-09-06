@@ -12,7 +12,7 @@ public class ConfigParticipantRecordTypeMap implements RecordTypeMap {
     @Override
     public Class<? extends AbstractRecord> getRecordClass() {
 
-        return ConfigParticipant.class;
+        return ConfigService.class;
     }
 
     @Override

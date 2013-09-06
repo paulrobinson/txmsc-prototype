@@ -40,7 +40,7 @@ public class SubordinateTest {
     @Before
     public void resetData() {
 
-        ConfigParticipant.reset();
+        ConfigService.reset();
     }
 
     @Test
@@ -49,16 +49,16 @@ public class SubordinateTest {
         RootTransaction ba1 = new RootTransaction();
         ba1.begin();
 
-        ConfigParticipant configParticipant1 = new ConfigParticipant("1");
-        ConfigParticipant configParticipant2 = new ConfigParticipant("2");
-        ba1.add(configParticipant1);
-        ba1.add(configParticipant2);
+        ConfigService configService1 = new ConfigService("1");
+        ConfigService configService2 = new ConfigService("2");
+        ba1.add(configService1.getParticipant());
+        ba1.add(configService2.getParticipant());
 
-        configParticipant1.setNewValue("1", "newVal1");
-        configParticipant2.setNewValue("2", "newVal2");
+        configService1.setNewValue("1", "newVal1");
+        configService2.setNewValue("2", "newVal2");
 
-        Assert.assertEquals(null, ConfigParticipant.getPersistedValue("1"));
-        Assert.assertEquals(null, ConfigParticipant.getPersistedValue("2"));
+        Assert.assertEquals(null, ConfigService.getPersistedValue("1"));
+        Assert.assertEquals(null, ConfigService.getPersistedValue("2"));
 
 
 
@@ -71,23 +71,23 @@ public class SubordinateTest {
         ba1.add(subordinateParticipantStub);
 
 
-        ConfigParticipant dummySubRecord1 = new ConfigParticipant("sub-1");
-        ConfigParticipant dummySubRecord2 = new ConfigParticipant("sub-2");
-        subordinateTransaction.add(dummySubRecord1);
-        subordinateTransaction.add(dummySubRecord2);
+        ConfigService dummySubRecord1 = new ConfigService("sub-1");
+        ConfigService dummySubRecord2 = new ConfigService("sub-2");
+        subordinateTransaction.add(dummySubRecord1.getParticipant());
+        subordinateTransaction.add(dummySubRecord2.getParticipant());
 
         dummySubRecord1.setNewValue("sub-1", "sub-newVal1");
         dummySubRecord2.setNewValue("sub-2", "sub-newVal2");
 
-        Assert.assertEquals(null, ConfigParticipant.getPersistedValue("sub-1"));
-        Assert.assertEquals(null, ConfigParticipant.getPersistedValue("sub-2"));
+        Assert.assertEquals(null, ConfigService.getPersistedValue("sub-1"));
+        Assert.assertEquals(null, ConfigService.getPersistedValue("sub-2"));
 
         ba1.commit();
 
-        Assert.assertEquals("newVal1", ConfigParticipant.getPersistedValue("1"));
-        Assert.assertEquals("newVal2", ConfigParticipant.getPersistedValue("2"));
-        Assert.assertEquals("sub-newVal1", ConfigParticipant.getPersistedValue("sub-1"));
-        Assert.assertEquals("sub-newVal2", ConfigParticipant.getPersistedValue("sub-2"));
+        Assert.assertEquals("newVal1", ConfigService.getPersistedValue("1"));
+        Assert.assertEquals("newVal2", ConfigService.getPersistedValue("2"));
+        Assert.assertEquals("sub-newVal1", ConfigService.getPersistedValue("sub-1"));
+        Assert.assertEquals("sub-newVal2", ConfigService.getPersistedValue("sub-2"));
 
     }
 }
