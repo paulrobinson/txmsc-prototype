@@ -30,7 +30,6 @@ import com.arjuna.ats.arjuna.state.InputObjectState;
 import com.arjuna.ats.arjuna.state.OutputObjectState;
 import com.arjuna.ats.internal.arjuna.common.UidHelper;
 import io.narayana.txmsc.child.SubordinateParticipant;
-import io.narayana.txmsc.child.SubordinateTransaction;
 
 import java.io.IOException;
 
@@ -44,6 +43,7 @@ public class SubordinateParticipantStub extends AbstractRecord {
 
     private SubordinateParticipant subordinateParticipant;
 
+    //Used at recovery time to create the instance
     public SubordinateParticipantStub() {
     }
 
@@ -51,7 +51,7 @@ public class SubordinateParticipantStub extends AbstractRecord {
 
         this.serverId = serverId;
         this.subordinateUid = subordinateUid;
-        this.subordinateParticipant = SubordinateParticipant.lookup(serverId, subordinateUid);
+        this.subordinateParticipant = SubordinateParticipant.connect(serverId, subordinateUid);
     }
 
     @Override
@@ -64,6 +64,7 @@ public class SubordinateParticipantStub extends AbstractRecord {
     }
 
     @Override
+    //todo: look at XAResourceRecord and see what is done there.
     public Object value() {
 
         log();
@@ -120,7 +121,7 @@ public class SubordinateParticipantStub extends AbstractRecord {
             subordinateUid = UidHelper.unpackFrom(os);
 
             //Lookup the remote participant, ensuring it restores from the recovery log
-            subordinateParticipant = SubordinateParticipant.lookupDuringRecovery(serverId, subordinateUid);
+            subordinateParticipant = SubordinateParticipant.recoverThenConnect(serverId, subordinateUid);
         } catch (IOException e) {
             return false;
         }
@@ -128,6 +129,7 @@ public class SubordinateParticipantStub extends AbstractRecord {
     }
 
     @Override
+    //todo: look at what XAResourceRecord does, as this is not allowed
     public int nestedAbort() {
 
         log();
@@ -177,6 +179,7 @@ public class SubordinateParticipantStub extends AbstractRecord {
     }
 
     @Override
+    //todo: look at what XAResourceRecord does, as this is not allowed
     public void merge(AbstractRecord a) {
     }
 

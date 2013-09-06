@@ -71,7 +71,7 @@ public class SubordinateTest {
         SubordinateParticipantStub subordinateParticipantStub = new SubordinateParticipantStub(serverId, subordinateUid);
         ba1.add(subordinateParticipantStub);
 
-        
+
         ConfigParticipant dummySubRecord1 = new ConfigParticipant("sub-1");
         ConfigParticipant dummySubRecord2 = new ConfigParticipant("sub-2");
         subordinateTransaction.add(dummySubRecord1);

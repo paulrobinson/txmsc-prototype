@@ -2,8 +2,6 @@ package io.narayana.txmsc.parent;
 
 import com.arjuna.ats.arjuna.common.Uid;
 import com.arjuna.ats.internal.arjuna.recovery.BasicActionRecoveryModule;
-import io.narayana.txmsc.parent.RecoverRootTransaction;
-import io.narayana.txmsc.parent.RootTransaction;
 
 /**
  * @author paul.robinson@redhat.com 01/09/2013

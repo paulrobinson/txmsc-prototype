@@ -36,6 +36,11 @@ public class SubordinateTransactionImporter {
     //todo: do we actually need this in-memmory mapping?
     private static Map<Integer, Map<Uid, SubordinateTransaction>> transactions = new ConcurrentHashMap<Integer, Map<Uid, SubordinateTransaction>>();
 
+    public static SubordinateTransaction createSubordinateTransaction(Integer serverId) {
+        return getSubordinateTransaction(serverId, null);
+    }
+
+
     public static SubordinateTransaction getSubordinateTransaction(Integer serverId, Uid subordinateUid) {
 
         if (serverId == null)

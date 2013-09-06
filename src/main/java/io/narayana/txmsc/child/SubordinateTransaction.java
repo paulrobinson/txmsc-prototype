@@ -43,11 +43,10 @@ public class SubordinateTransaction extends BasicAction {
         this.serverId = serverId;
     }
 
-    public SubordinateTransaction(Integer serverId, Uid uid) {
+    public SubordinateTransaction(Uid uid) {
 
         super(uid);
         activate();
-        this.serverId = serverId;
     }
 
     public String type() {

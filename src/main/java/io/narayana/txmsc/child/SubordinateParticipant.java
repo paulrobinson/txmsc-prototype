@@ -9,20 +9,21 @@ public class SubordinateParticipant {
 
     private SubordinateTransaction subordinateTransaction;
 
+    //todo, remove flag
     private SubordinateParticipant(Integer serverId, Uid subordinateUid, boolean fromDisk) {
 
         if (fromDisk) {
-            this.subordinateTransaction = new SubordinateTransaction(serverId, subordinateUid);
+            this.subordinateTransaction = new SubordinateTransaction(subordinateUid);
         } else {
             this.subordinateTransaction = SubordinateTransactionImporter.getSubordinateTransaction(serverId, subordinateUid);
         }
     }
 
-    public static SubordinateParticipant lookup(Integer serverId, Uid subordinateUid) {
+    public static SubordinateParticipant connect(Integer serverId, Uid subordinateUid) {
         return new SubordinateParticipant(serverId, subordinateUid, false);
     }
 
-    public static SubordinateParticipant lookupDuringRecovery(Integer serverId, Uid subordinateUid) {
+    public static SubordinateParticipant recoverThenConnect(Integer serverId, Uid subordinateUid) {
         return new SubordinateParticipant(serverId, subordinateUid, true);
     }
 

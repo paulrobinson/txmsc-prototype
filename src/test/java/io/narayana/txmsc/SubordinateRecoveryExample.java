@@ -34,45 +34,40 @@ public class SubordinateRecoveryExample {
         RootTransaction rootTransaction = new RootTransaction();
         rootTransaction.begin();
 
-        ConfigParticipant rootsConfigService = new ConfigParticipant("ParentConfigService");
-        rootTransaction.add(rootsConfigService);
+        ConfigParticipant parentConfigService = new ConfigParticipant("ParentConfigService");
+        rootTransaction.add(parentConfigService);
 
         //Make the config change
-        rootsConfigService.setNewValue("parent-config", "newParentConfigValue");
+        parentConfigService.setNewValue("parent-config", "newParentConfigValue");
 
 
         /*
-            CHILD SIDE
+            CHILD SIDE (Propagated transaction context)
          */
-        SubordinateTransaction subordinateTransaction = SubordinateTransactionImporter.getSubordinateTransaction(parentServerId, null);
+        SubordinateTransaction subordinateTransaction = SubordinateTransactionImporter.createSubordinateTransaction(parentServerId);
         subordinateTransaction.begin();
-        //Get subordinate Uid and pass to parent.
-        Uid subordinateUid = subordinateTransaction.get_uid();
 
-        /*
-            PARENT SIDE
-         */
-        SubordinateParticipantStub subordinateParticipantStub = new SubordinateParticipantStub(parentServerId, subordinateUid);
-        rootTransaction.add(subordinateParticipantStub);
-
-
-        /*
-            CHILD SIDE
-         */
         ConfigParticipant childsConfigService = new ConfigParticipant("childConfigService", true);
         subordinateTransaction.add(childsConfigService);
 
         //Make the config change
         childsConfigService.setNewValue("child-config", "newChildConfigValue");
 
+        //Get subordinate Uid and pass to parent.
+        Uid subordinateUid = subordinateTransaction.get_uid();
+
 
         /*
             PARENT SIDE
          */
+        //todo: remove the parentServerId
+        SubordinateParticipantStub subordinateParticipantStub = new SubordinateParticipantStub(parentServerId, subordinateUid);
+        rootTransaction.add(subordinateParticipantStub);
+
         try {
             rootTransaction.commit();
         } catch (Error e) {
-            System.out.println("Server simulated a crashed, as expected");
+            System.out.println("Server simulated a crash, as expected");
         }
     }
 
