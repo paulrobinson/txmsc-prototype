@@ -24,10 +24,10 @@ package io.narayana.txmsc;
 
 import com.arjuna.ats.arjuna.common.Uid;
 import io.narayana.txmsc.child.SubordinateTransaction;
+import io.narayana.txmsc.child.SubordinateTransactionImporter;
 import io.narayana.txmsc.parent.NodeConfig;
 import io.narayana.txmsc.parent.RootTransaction;
 import io.narayana.txmsc.parent.SubordinateParticipantStub;
-import io.narayana.txmsc.child.SubordinateTransactionImporter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,7 +59,6 @@ public class SubordinateTest {
 
         Assert.assertEquals(null, ConfigService.getCommittedValue("1"));
         Assert.assertEquals(null, ConfigService.getCommittedValue("2"));
-
 
 
         SubordinateTransaction subordinateTransaction = SubordinateTransactionImporter.createSubordinateTransaction(NodeConfig.SERVER_ID);

@@ -10,6 +10,9 @@ import io.narayana.txmsc.parent.SubordinateParticipantStub;
 import io.narayana.txmsc.parent.SubordinateParticipantStubRecordTypeMap;
 
 /**
+ * This example shows how an orphaned Subordinate Transaction can appear and how orphan detection can be used to correctly
+ * resolve it.
+ *
  * @author paul.robinson@redhat.com 08/08/2013
  */
 public class SubordinateOrphanExample {
@@ -25,6 +28,12 @@ public class SubordinateOrphanExample {
         }
     }
 
+    /**
+     * Run a transaction, simulating a crash after the subordinate transaction prepares, but before the root transaction
+     * completes it's prepare. This results in a Subordinate Transaction being logged, without a corresponding Root Transaction log.
+     *
+     * @throws Exception
+     */
     private static void runTransaction() throws Exception {
 
         /*
@@ -69,6 +78,13 @@ public class SubordinateOrphanExample {
         }
     }
 
+
+    /**
+     * Setup then run recovery. The Root Transaction does not need recovering as it never prepared. The Subordinate Transaction
+     * is rolled back as part of orphan detection.
+     *
+     * @throws Exception
+     */
     private static void recoverTransaction() throws Exception {
 
         /*

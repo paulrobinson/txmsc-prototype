@@ -10,6 +10,8 @@ import io.narayana.txmsc.parent.SubordinateParticipantStubRecordTypeMap;
 import io.narayana.txmsc.child.SubordinateTransactionImporter;
 
 /**
+ * An example showing recovery of a failed Root Transaction with a subordinate transaction.
+ *
  * @author paul.robinson@redhat.com 08/08/2013
  */
 public class SubordinateRecoveryExample {
@@ -25,6 +27,11 @@ public class SubordinateRecoveryExample {
         }
     }
 
+    /**
+     * Run a Root transaction with a subordinate transaction. Simulate a failure during commit of the subordinate transaction.
+     *
+     * @throws Exception
+     */
     private static void runTransaction() throws Exception {
 
         /*
@@ -69,6 +76,11 @@ public class SubordinateRecoveryExample {
         }
     }
 
+    /**
+     * Run recovery and observer recovery of the Root Transaction and the Subordinate Transaction.
+     *
+     * @throws Exception
+     */
     private static void recoverTransaction() throws Exception {
 
         /*

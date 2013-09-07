@@ -4,6 +4,8 @@ import com.arjuna.ats.arjuna.coordinator.abstractrecord.RecordTypeManager;
 import io.narayana.txmsc.parent.RootTransaction;
 
 /**
+ * An example showing recovery of a failed Root Transaction.
+ *
  * @author paul.robinson@redhat.com 08/08/2013
  */
 public class SimpleRecoveryExample {
@@ -14,14 +16,16 @@ public class SimpleRecoveryExample {
             runTransaction();
         } else if (args[0].equals("--recover")) {
             recoverTransaction();
-        } else if (args[0].equals("--both")) {
-            runTransaction();
-            recoverTransaction();
         } else {
             System.err.println("Unexpected arg: " + args[0]);
         }
     }
 
+    /**
+     * Run the transaction and simulate a crash during commit.
+     *
+     * @throws Exception
+     */
     private static void runTransaction() throws Exception {
 
         RootTransaction ba1 = new RootTransaction();
@@ -42,6 +46,11 @@ public class SimpleRecoveryExample {
         }
     }
 
+    /**
+     * Run the recovery manager and observe recovery of the transaction.
+     *
+     * @throws Exception
+     */
     private static void recoverTransaction() throws Exception {
 
         ConfigParticipantRecordTypeMap map = new ConfigParticipantRecordTypeMap();
