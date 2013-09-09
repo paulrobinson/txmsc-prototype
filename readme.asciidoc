@@ -1,6 +1,6 @@
 = Transactional MSC Prototype
 
-Prototype implementation of how ArjunaCore could be used for Transactional MSC. For the high-level documentation of this code: https://community.jboss.org/message/828391.
+This project provides a prototype implementation of how ArjunaCore could be used for Transactional MSC. For the high-level documentation of this code: https://community.jboss.org/message/828391.
 
 == Running the tests and examples
 
