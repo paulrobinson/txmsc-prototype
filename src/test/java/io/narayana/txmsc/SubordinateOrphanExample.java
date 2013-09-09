@@ -72,11 +72,8 @@ public class SubordinateOrphanExample {
         SubordinateParticipantStub subordinateParticipantStub = new SubordinateParticipantStub(subordinateUid, true);
         rootTransaction.add(subordinateParticipantStub);
 
-        try {
-            rootTransaction.commit();
-        } catch (Error e) {
-            System.out.println("Server simulated a crash, as expected");
-        }
+		rootTransaction.commit();
+		System.err.println("FAIL: This process was expected to have been killed by a System.exit in the SubordinateParticipantStub");
     }
 
 
