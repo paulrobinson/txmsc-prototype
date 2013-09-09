@@ -1,7 +1,7 @@
 package io.narayana.txmsc.parent;
 
 import com.arjuna.ats.arjuna.common.Uid;
-import com.arjuna.ats.internal.arjuna.recovery.BasicActionRecoveryModule;
+import io.narayana.txmsc.ext.BasicActionRecoveryModule;
 
 /**
  * This Recovery Module is responsible for driving recovery of Root Transactions and the enlisted Subordinate Transactions.
