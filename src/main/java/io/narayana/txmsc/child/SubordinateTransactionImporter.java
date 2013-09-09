@@ -24,6 +24,8 @@ package io.narayana.txmsc.child;
 
 import com.arjuna.ats.arjuna.common.Uid;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -81,6 +83,16 @@ public class SubordinateTransactionImporter {
         }
 
         return subordinates.get(subordinateUid);
+    }
+
+    public static Collection<SubordinateTransaction> getSubordinateTransactions(Integer serverId) {
+
+        Map<Uid, SubordinateTransaction> subordinateTransactionMap = transactions.get(serverId);
+        if (subordinateTransactionMap == null) {
+            return null;
+        }
+
+        return subordinateTransactionMap.values();
     }
 
 }

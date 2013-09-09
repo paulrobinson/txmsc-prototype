@@ -96,14 +96,14 @@ public class SubordinateTransaction extends BasicAction {
     @Override
     public boolean save_state(OutputObjectState os, int i) {
 
-        if (!super.save_state(os, i)) {
-            return false;
-        }
-
         try {
             os.packInt(serverId);
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
+        }
+
+        if (!super.save_state(os, i)) {
             return false;
         }
 
@@ -120,15 +120,16 @@ public class SubordinateTransaction extends BasicAction {
     @Override
     public boolean restore_state(InputObjectState os, int i) {
 
-        if (!super.restore_state(os, i)) {
-            return false;
-        }
-
         try {
             serverId = os.unpackInt();
         } catch (IOException e) {
             return false;
         }
+
+        if (!super.restore_state(os, i)) {
+            return false;
+        }
+
         return true;
     }
 

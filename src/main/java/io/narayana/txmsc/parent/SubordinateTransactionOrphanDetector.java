@@ -33,6 +33,7 @@ public class SubordinateTransactionOrphanDetector implements RecoveryModule {
     @Override
     public void periodicWorkSecondPass() {
 
-        OrphanCleanup.doCleanup(NodeConfig.SERVER_ID);
+        OrphanCleanup orphanCleanup = OrphanCleanup.connect();
+        orphanCleanup.doCleanup(NodeConfig.SERVER_ID);
     }
 }

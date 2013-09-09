@@ -7,6 +7,8 @@ import com.arjuna.ats.arjuna.objectstore.StoreManager;
 import com.arjuna.ats.arjuna.state.InputObjectState;
 import com.arjuna.ats.internal.arjuna.common.UidHelper;
 
+import java.util.Collection;
+
 /**
  * This is currently un-tested, but it gives an idea as to how we think orphan detection would work.
  *
@@ -14,16 +16,43 @@ import com.arjuna.ats.internal.arjuna.common.UidHelper;
  */
 public class OrphanCleanup {
 
+    private OrphanCleanup() {
+
+    }
+
+    public static OrphanCleanup connect() {
+
+        return new OrphanCleanup();
+    }
+
     /**
      * todo: do the in-mem ones first, then peak for all the tx with the required serverId and do them
-     *
+     * <p/>
      * Orphan detection is driven by the parent after it has recovered all the transactions it knows about.
      * After which, this method is invoked, to request that the child rollback all the transactions in the log initiated
      * by the requesting server, and of the type 'SubordinateTransaction'.
      *
      * @param serverId The id of the server that initiated the request.
      */
-    public static void doCleanup(Integer serverId) {
+    public void doCleanup(Integer serverId) {
+
+        doCleanupOfInMemoryTransactions(serverId);
+        doCleanupOfCrashedTransactions(serverId);
+    }
+
+    private void doCleanupOfInMemoryTransactions(Integer serverId) {
+
+        Collection<SubordinateTransaction> subordinateTransactions = SubordinateTransactionImporter.getSubordinateTransactions(serverId);
+        if (subordinateTransactions == null) {
+            return;
+        }
+
+        for (SubordinateTransaction subordinateTransaction : subordinateTransactions) {
+            subordinateTransaction.rollback();
+        }
+    }
+
+    private void doCleanupOfCrashedTransactions(Integer serverId) {
 
         try {
             RecoveryStore recoveryStore = StoreManager.getRecoveryStore();
@@ -51,11 +80,15 @@ public class OrphanCleanup {
                     if (orphanUid.equals(Uid.nullUid())) {
                         moreUids = false;
                     } else {
-                        //todo: should check first if it's for this serverId, before reloading the entire transaction
-                        SubordinateTransaction subordinateTransaction = new SubordinateTransaction(orphanUid);
 
-                        //check if it was initiated by the specified server and if so, rollback.
-                        if (subordinateTransaction.getServerId().equals(serverId)) {
+
+                        InputObjectState objectState = recoveryStore.read_committed(orphanUid, new SubordinateTransaction().type());
+                        Integer unpackedServerId = objectState.unpackInt();
+
+                        //If Transaction was initiated by the specified server, then restore and rollback the transaction.
+                        if (unpackedServerId.equals(serverId)) {
+
+                            SubordinateTransaction subordinateTransaction = new SubordinateTransaction(orphanUid);
                             subordinateTransaction.rollback();
                         }
                     }
