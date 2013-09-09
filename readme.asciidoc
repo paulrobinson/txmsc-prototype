@@ -1,6 +1,6 @@
 = Transactional MSC Prototype
 
-Prototype implementation of how ArjunaCore could be used for Transactional MSC. See here: <TODO> for the high-level documentation of this code.
+Prototype implementation of how ArjunaCore could be used for Transactional MSC. For the high-level documentation of this code: https://community.jboss.org/message/828391.
 
 == Running the tests and examples
 
@@ -36,5 +36,30 @@ In particular, observe that the commit is called on the two participants and tha
     ...
     ConfigParticipant:recovery:topLevelCommit:newValue:child-config=newChildConfigValue
     ConfigParticipant:recovery:topLevelCommit:newValue:parent-config=newParentConfigValue
-    newChildConfigValue
-    newParentConfigValue
+    'child-config' value = newChildConfigValue
+    'parent-config' value = newParentConfigValue
+    
+== Orphan Detection Example
+
+SubordinateOrphanExample.java demonstrates how an orphaned Subordinate Transaction can occur. Essentially, this happens if a failure occurs after the Subordinate Transaction is prepared (and thus logged), but before the Root Transaction prepares (and thus not logged).
+
+Create an orphaned transaction by running:
+
+    mvn install exec:java -Dexec.mainClass="io.narayana.txmsc.SubordinateOrphanExample" -Dexec.classpathScope="test" -DskipTests
+
+Observe a single recovery record, for the Subordinate Transaction in the object store:
+
+    tree ./target/object-store
+    ./target/object-store
+    └── ShadowNoFileLockStore
+        └── defaultStore
+            └── StateManager
+                ├── RootTransaction
+                └── SubordinateTransaction
+                    └── 0_ffffac118223_de90_522dd75d_3
+
+Then run recovery to have the orpahn be detected and then rolled back:
+
+     mvn install exec:java -Dexec.mainClass="io.narayana.txmsc.SubordinateOrphanExample" -Dexec.classpathScope="test" -DskipTests -DskipTests -Dexec.args=--recover
+     
+Observe that the outputed values of the parent and child config values is still 'null', as it was before the transaction was begun. You wil also notice that the transaction log has been removed.
