@@ -33,8 +33,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * todo: document sides and re-order
- *
  * @author paul.robinson@redhat.com 07/08/2013
  */
 public class SubordinateTest {
@@ -48,6 +46,9 @@ public class SubordinateTest {
     @Test
     public void testSimple() throws Exception {
 
+        /*
+            PARENT SIDE
+         */
         RootTransaction ba1 = new RootTransaction();
         ba1.begin();
 
@@ -63,13 +64,11 @@ public class SubordinateTest {
         Assert.assertEquals(null, ConfigService.getCommittedValue("2"));
 
 
+        /*
+            CHILD SIDE
+         */
         SubordinateTransaction subordinateTransaction = SubordinateTransactionImporter.createSubordinateTransaction(NodeConfig.SERVER_ID);
         subordinateTransaction.begin();
-        //Get subordinate Uid and pass to parent.
-        Uid subordinateUid = subordinateTransaction.get_uid();
-
-        SubordinateParticipantStub subordinateParticipantStub = new SubordinateParticipantStub(subordinateUid);
-        ba1.add(subordinateParticipantStub);
 
 
         ConfigService dummySubRecord1 = new ConfigService("sub-1");
@@ -82,6 +81,15 @@ public class SubordinateTest {
 
         Assert.assertEquals(null, ConfigService.getCommittedValue("sub-1"));
         Assert.assertEquals(null, ConfigService.getCommittedValue("sub-2"));
+        //Get subordinate Uid and pass to parent.
+        Uid subordinateUid = subordinateTransaction.get_uid();
+
+
+        /*
+            PARENT SIDE
+         */
+        SubordinateParticipantStub subordinateParticipantStub = new SubordinateParticipantStub(subordinateUid);
+        ba1.add(subordinateParticipantStub);
 
         ba1.commit();
 

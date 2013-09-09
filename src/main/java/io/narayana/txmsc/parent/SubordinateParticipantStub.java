@@ -93,7 +93,6 @@ public class SubordinateParticipantStub extends AbstractRecord {
 
         log();
 
-        //todo: Document
         return RecordType.USER_DEF_FIRST0;
     }
 

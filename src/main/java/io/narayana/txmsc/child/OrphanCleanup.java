@@ -26,8 +26,6 @@ public class OrphanCleanup {
     }
 
     /**
-     * todo: do the in-mem ones first, then peak for all the tx with the required serverId and do them
-     * <p/>
      * Orphan detection is driven by the parent after it has recovered all the transactions it knows about.
      * After which, this method is invoked, to request that the child rollback all the transactions in the log initiated
      * by the requesting server, and of the type 'SubordinateTransaction'.
