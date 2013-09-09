@@ -1,0 +1,4 @@
+txmsc-prototype
+===============
+
+Prototype implementation of how ArjunaCore could be used for Transactional MSC
