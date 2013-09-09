@@ -1,4 +1,40 @@
-txmsc-prototype
-===============
+= Transactional MSC Prototype
 
-Prototype implementation of how ArjunaCore could be used for Transactional MSC
+Prototype implementation of how ArjunaCore could be used for Transactional MSC. See here: <TODO> for the high-level documentation of this code.
+
+== Running the tests and examples
+
+The JUnit tests only cover the normal operation. They don't yet cover recovery or orphan detection. This is because some complex setup is required to simulate crash-recovery. This can be done when we are further down the road of proving these techniques work.
+
+To run them:
+
+    mvn test
+    
+== Recovery Examples
+
+There are two recovery exmples. The first covers a transaction with just a Root Transaction. The second covers a Root Transaction with an enlisted Subordinate Transaction. They are both pretty similar, so only the one with an enlisted Subordinate Transaction is described here.
+
+=== SubordinateTransactionRecoveryExample.java
+
+This example runs a Root Transaction with an enlisted subordinate transaction. It simulates a crash during commit of a participant of the Subordinate Transaction. During recovery, the transactions is recovered and committed. To run:
+
+    mvn install exec:java -Dexec.mainClass="io.narayana.txmsc.SubordinateRecoveryExample" -Dexec.classpathScope="test" -DskipTests
+
+In particular, observe that the Subordinate Transaction was told to commit, but crashed during this operation:
+
+    ...
+    SubordinateParticipantStub:topLevelCommit
+    ConfigParticipant:childConfigService:CRASH:topLevelCommit
+    Server simulated a crash, as expected
+
+Now run the example in recovery mode:
+
+    mvn install exec:java -Dexec.mainClass="io.narayana.txmsc.SubordinateRecoveryExample" -Dexec.classpathScope="test" -DskipTests -Dexec.args=--recover
+
+In particular, observe that the commit is called on the two participants and that the application state change was made:
+
+    ...
+    ConfigParticipant:recovery:topLevelCommit:newValue:child-config=newChildConfigValue
+    ConfigParticipant:recovery:topLevelCommit:newValue:parent-config=newParentConfigValue
+    newChildConfigValue
+    newParentConfigValue
