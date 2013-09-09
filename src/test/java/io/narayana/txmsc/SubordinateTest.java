@@ -33,6 +33,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
+ * todo: document sides and re-order
+ *
  * @author paul.robinson@redhat.com 07/08/2013
  */
 public class SubordinateTest {

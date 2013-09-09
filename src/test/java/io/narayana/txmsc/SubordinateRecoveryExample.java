@@ -2,6 +2,7 @@ package io.narayana.txmsc;
 
 import com.arjuna.ats.arjuna.common.Uid;
 import com.arjuna.ats.arjuna.coordinator.abstractrecord.RecordTypeManager;
+import com.arjuna.ats.arjuna.recovery.RecoveryManager;
 import io.narayana.txmsc.child.SubordinateTransaction;
 import io.narayana.txmsc.parent.NodeConfig;
 import io.narayana.txmsc.parent.RootTransaction;
@@ -92,15 +93,15 @@ public class SubordinateRecoveryExample {
         SubordinateParticipantStubRecordTypeMap subordinateParticipantStubRecordTypeMap = new SubordinateParticipantStubRecordTypeMap();
         RecordTypeManager.manager().add(subordinateParticipantStubRecordTypeMap);
 
-        RecoverySetup.startRecovery();
-        RecoverySetup.runRecoveryScan();
+        RecoveryManager recoveryManager = RecoverySetup.getAndConfigureRecoveryManager();
+        recoveryManager.scan();
 
-        Thread.sleep(5000);
-
+        //Print out the state after the transaction is recovered. As it should be committed, these values should be
+        //set to those specified in the transaction.
         System.out.println(ConfigService.getCommittedValue("child-config"));
         System.out.println(ConfigService.getCommittedValue("parent-config"));
 
-        RecoverySetup.stopRecovery();
+        recoveryManager.terminate();
     }
 
 }

@@ -44,19 +44,18 @@ public class RootTransactionTest {
     public void resetData() {
 
         ConfigService.reset();
-        clearLog();
     }
 
     @Test
     public void testSimple() throws Exception {
 
-        RootTransaction ba1 = new RootTransaction();
-        ba1.begin();
+        RootTransaction rootTransaction = new RootTransaction();
+        rootTransaction.begin();
 
         ConfigService configService1 = new ConfigService("1");
         ConfigService configService2 = new ConfigService("2");
-        ba1.add(configService1);
-        ba1.add(configService2);
+        rootTransaction.add(configService1);
+        rootTransaction.add(configService2);
 
         configService1.setNewValue("1", "newVal1");
         configService2.setNewValue("2", "newVal2");
@@ -64,75 +63,11 @@ public class RootTransactionTest {
         Assert.assertEquals(null, ConfigService.getCommittedValue("1"));
         Assert.assertEquals(null, ConfigService.getCommittedValue("2"));
 
-        ba1.commit();
+        rootTransaction.commit();
 
         Assert.assertEquals("newVal1", ConfigService.getCommittedValue("1"));
         Assert.assertEquals("newVal2", ConfigService.getCommittedValue("2"));
 
     }
 
-    /**
-     * This tests recovery of Root Transactions. The test currently fails as the code doesn't adequately simulate a crash.
-     *
-     * We will need a more complex setup to test recovery in a unit test.
-     *
-     * @throws Exception
-     */
-    @Test
-    @Ignore
-    public void testRecovery() throws Exception {
-
-        RootTransaction ba1 = new RootTransaction();
-        ba1.begin();
-
-        ConfigService configService1 = new ConfigService("1");
-        ConfigService configService2 = new ConfigService("2", true);
-        ba1.add(configService1);
-        ba1.add(configService2);
-
-        configService1.setNewValue("1", "newVal1");
-        configService2.setNewValue("2", "newVal2");
-
-        Assert.assertEquals(null, ConfigService.getCommittedValue("1"));
-        Assert.assertEquals(null, ConfigService.getCommittedValue("2"));
-
-        try {
-            ba1.commit();
-            Assert.fail("Should have simulated a crash by throwing an java.lang.Error");
-        } catch (Error e) {
-            //expected
-        }
-
-        Assert.assertEquals("newVal1", ConfigService.getCommittedValue("1"));
-        Assert.assertEquals(null, ConfigService.getCommittedValue("2"));
-
-        //Now Run recovery and check it worked....
-        ConfigParticipantRecordTypeMap map = new ConfigParticipantRecordTypeMap();
-        RecordTypeManager.manager().add(map);
-
-        RecoverySetup.startRecovery();
-        RecoverySetup.runRecoveryScan();
-
-        Thread.sleep(5000);
-
-        Assert.assertEquals("newVal1", ConfigService.getCommittedValue("1"));
-        Assert.assertEquals("newVal2", ConfigService.getCommittedValue("2"));
-
-        RecoverySetup.stopRecovery();
-    }
-
-    /**
-     * Clear the log between tests to ensure that a previously failed test can't impact on future tests.
-     *
-     */
-    private void clearLog() {
-
-        File objectStoreDir = new File(BeanPopulator.getDefaultInstance(ObjectStoreEnvironmentBean.class).getObjectStoreDir() + "/ShadowNoFileLockStore/defaultStore/StateManager/RootTransaction");
-        for (File record : objectStoreDir.listFiles()) {
-            boolean result = record.delete();
-            if (!result) {
-                throw new RuntimeException("Unable to delete file: " + record.getAbsolutePath());
-            }
-        }
-    }
 }

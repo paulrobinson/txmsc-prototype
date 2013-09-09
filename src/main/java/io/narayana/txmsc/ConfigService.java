@@ -301,7 +301,7 @@ public class ConfigService extends AbstractRecord {
 
     @Override
     public boolean shouldAdd(AbstractRecord a) {
-        return false;
+        return true;
     }
 
     @Override

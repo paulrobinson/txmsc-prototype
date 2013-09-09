@@ -26,6 +26,9 @@ public class SubordinateTransactionOrphanDetector implements RecoveryModule {
      *
      *  This method makes a remote call to the child to clean-up (rollback) all remaining subordinate transactions in the
      *  object-store and asociated with this server id.
+     *
+     *  todo: this should not run if the Root Transaction recovery failed due to a transient issue. Maybe the two Recovery
+     *  Managers should be merged and renamed to something more generic
      */
     @Override
     public void periodicWorkSecondPass() {

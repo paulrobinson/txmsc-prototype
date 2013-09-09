@@ -18,41 +18,17 @@ import java.util.List;
 public class RecoverySetup {
 
     /**
-     * Static handle on the recovery manager.
-     */
-    protected static RecoveryManager recoveryManager;
-
-    /**
-     * Configure the Recovery Manager and start it.
+     * Configure the Recovery Manager, start it then return it.
      *
      */
-    public static void startRecovery() {
-
-        BeanPopulator.getDefaultInstance(RecoveryEnvironmentBean.class).setRecoveryBackoffPeriod(1);
+    public static RecoveryManager getAndConfigureRecoveryManager() {
 
         List<RecoveryModule> recoveryModules = new ArrayList<RecoveryModule>();
         recoveryModules.add(new RootTransactionRecoveryModule());
         recoveryModules.add(new SubordinateTransactionOrphanDetector());
         BeanPopulator.getDefaultInstance(RecoveryEnvironmentBean.class).setRecoveryModules(recoveryModules);
 
-        recoveryManager = RecoveryManager.manager();
+        return RecoveryManager.manager();
     }
 
-    /**
-     * Stop the recovery manager.
-     *
-     */
-    public static void stopRecovery() {
-
-        recoveryManager.terminate();
-    }
-
-    /**
-     * Run a recovery scan on-demand.
-     *
-     */
-    public static void runRecoveryScan() {
-
-        recoveryManager.scan();
-    }
 }

@@ -240,7 +240,7 @@ public class SubordinateParticipantStub extends AbstractRecord {
     @Override
     public boolean shouldAdd(AbstractRecord a) {
 
-        return false;
+        return true;
     }
 
     @Override

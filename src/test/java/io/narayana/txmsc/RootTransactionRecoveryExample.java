@@ -1,6 +1,7 @@
 package io.narayana.txmsc;
 
 import com.arjuna.ats.arjuna.coordinator.abstractrecord.RecordTypeManager;
+import com.arjuna.ats.arjuna.recovery.RecoveryManager;
 import io.narayana.txmsc.parent.RootTransaction;
 
 /**
@@ -8,7 +9,7 @@ import io.narayana.txmsc.parent.RootTransaction;
  *
  * @author paul.robinson@redhat.com 08/08/2013
  */
-public class SimpleRecoveryExample {
+public class RootTransactionRecoveryExample {
 
     public static void main(String[] args) throws Exception {
 
@@ -40,9 +41,11 @@ public class SimpleRecoveryExample {
         configService2.setNewValue("2", "newVal2");
 
         try {
+            // Will fail when the ConfigService2 commits
             ba1.commit();
+            System.err.println("Was able to commit, but should have failed");
         } catch (Error e) {
-            System.out.println("Server simulated a crashed, as expected");
+            System.out.println("Server simulated a crash, as expected");
         }
     }
 
@@ -56,15 +59,13 @@ public class SimpleRecoveryExample {
         ConfigParticipantRecordTypeMap map = new ConfigParticipantRecordTypeMap();
         RecordTypeManager.manager().add(map);
 
-        RecoverySetup.startRecovery();
-        RecoverySetup.runRecoveryScan();
-
-        Thread.sleep(5000);
+        RecoveryManager recoveryManager = RecoverySetup.getAndConfigureRecoveryManager();
+        recoveryManager.scan();
 
         System.out.println(ConfigService.getCommittedValue("1"));
         System.out.println(ConfigService.getCommittedValue("2"));
 
-        RecoverySetup.stopRecovery();
+        recoveryManager.terminate();
     }
 
 }
