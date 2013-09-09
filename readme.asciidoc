@@ -12,7 +12,7 @@ To run them:
     
 == Recovery Examples
 
-There are two recovery exmples. The first covers a transaction with just a Root Transaction. The second covers a Root Transaction with an enlisted Subordinate Transaction. They are both pretty similar, so only the one with an enlisted Subordinate Transaction is described here.
+There are two recovery examples. The first covers a transaction with just a Root Transaction. The second covers a Root Transaction with an enlisted Subordinate Transaction. They are both pretty similar, so only the one with an enlisted Subordinate Transaction is described here.
 
 === SubordinateTransactionRecoveryExample.java
 
@@ -62,4 +62,4 @@ Then run recovery to have the orpahn be detected and then rolled back:
 
      mvn install exec:java -Dexec.mainClass="io.narayana.txmsc.SubordinateOrphanExample" -Dexec.classpathScope="test" -DskipTests -DskipTests -Dexec.args=--recover
      
-Observe that the outputed values of the parent and child config values is still 'null', as it was before the transaction was begun. You wil also notice that the transaction log has been removed.
+Observe that the outputed values of the parent and child config values is still 'null', as it was before the transaction was begun. You will also notice that the transaction log has been removed.
