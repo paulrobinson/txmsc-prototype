@@ -23,6 +23,9 @@ public class RecoverySetup {
      */
     public static RecoveryManager getAndConfigureRecoveryManager() {
 
+        //Ensures recovery scan runs immediately.
+        BeanPopulator.getDefaultInstance(RecoveryEnvironmentBean.class).setRecoveryBackoffPeriod(1);
+
         List<RecoveryModule> recoveryModules = new ArrayList<RecoveryModule>();
         recoveryModules.add(new RootTransactionRecoveryModule());
         recoveryModules.add(new SubordinateTransactionOrphanDetector());
