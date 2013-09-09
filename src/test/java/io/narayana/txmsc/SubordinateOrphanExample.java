@@ -98,8 +98,8 @@ public class SubordinateOrphanExample {
         recoveryManager.scan();
 
         //Print out the state after the transaction is recovered. As it should be rolled back, these values should be null.
-        System.out.println(ConfigService.getCommittedValue("child-config"));
-        System.out.println(ConfigService.getCommittedValue("parent-config"));
+        System.out.println("'child-config' value = " + ConfigService.getCommittedValue("child-config"));
+        System.out.println("'parent-config' value = " + ConfigService.getCommittedValue("parent-config"));
 
         recoveryManager.terminate();
     }

@@ -62,8 +62,8 @@ public class RootTransactionRecoveryExample {
         RecoveryManager recoveryManager = RecoverySetup.getAndConfigureRecoveryManager();
         recoveryManager.scan();
 
-        System.out.println(ConfigService.getCommittedValue("1"));
-        System.out.println(ConfigService.getCommittedValue("2"));
+        System.out.println("'child-config' value = " + ConfigService.getCommittedValue("child-config"));
+        System.out.println("'parent-config' value = " + ConfigService.getCommittedValue("parent-config"));
 
         recoveryManager.terminate();
     }
