@@ -27,7 +27,8 @@ import com.arjuna.ats.arjuna.coordinator.ActionType;
 import com.arjuna.ats.arjuna.coordinator.BasicAction;
 
 /**
- * Represents the Root Transaction.
+ * Represents the Root Transaction. Extension of BasicAction is used to expose some of the underlying protected 
+ * methods.
  *
  * @author paul.robinson@redhat.com 07/08/2013
  */
@@ -84,7 +85,7 @@ public class RootTransaction extends BasicAction {
     }
 
     /**
-     * Returns ths the identifier for transactions of this type.
+     * Returns the identifier for transactions of this type.
      *
      * @return
      */

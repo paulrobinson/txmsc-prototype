@@ -45,10 +45,10 @@ public class SubordinateParticipantStub extends AbstractRecord {
     private Uid subordinateUid;
     private boolean failAfterSubordinatePrepare = false;
 
-    private SubordinateParticipant subordinateParticipant;
+    private SubordinateParticipant remoteSubordinateParticipant;
 
     /**
-     * no-args constructed used during recovery to create a new instance, prior to restoring the state from the object-store.
+     * no-args constructor used during recovery to create a new instance, prior to restoring the state from the object-store.
      */
     public SubordinateParticipantStub() {
     }
@@ -61,7 +61,7 @@ public class SubordinateParticipantStub extends AbstractRecord {
     public SubordinateParticipantStub(Uid subordinateUid) {
 
         this.subordinateUid = subordinateUid;
-        this.subordinateParticipant = SubordinateParticipant.connect(NodeConfig.SERVER_ID, subordinateUid);
+        this.remoteSubordinateParticipant = SubordinateParticipant.connect(NodeConfig.SERVER_ID, subordinateUid);
         this.serverId = NodeConfig.SERVER_ID;
     }
 
@@ -77,7 +77,7 @@ public class SubordinateParticipantStub extends AbstractRecord {
     public SubordinateParticipantStub(Uid subordinateUid, boolean failAfterSubordinatePrepare) {
 
         this.subordinateUid = subordinateUid;
-        this.subordinateParticipant = SubordinateParticipant.connect(NodeConfig.SERVER_ID, subordinateUid);
+        this.remoteSubordinateParticipant = SubordinateParticipant.connect(NodeConfig.SERVER_ID, subordinateUid);
         this.serverId = NodeConfig.SERVER_ID;
         this.failAfterSubordinatePrepare = failAfterSubordinatePrepare;
     }
@@ -170,7 +170,7 @@ public class SubordinateParticipantStub extends AbstractRecord {
             subordinateUid = UidHelper.unpackFrom(os);
 
             //Lookup the remote participant, ensuring it restores from the recovery log
-            subordinateParticipant = SubordinateParticipant.recoverThenConnect(subordinateUid);
+            remoteSubordinateParticipant = SubordinateParticipant.recoverThenConnect(subordinateUid);
         } catch (IOException e) {
             return false;
         }
@@ -203,7 +203,7 @@ public class SubordinateParticipantStub extends AbstractRecord {
 
         log();
         //Simulates a remote call
-        return subordinateParticipant.rollback();
+        return remoteSubordinateParticipant.rollback();
     }
 
     @Override
@@ -211,7 +211,7 @@ public class SubordinateParticipantStub extends AbstractRecord {
 
         log();
         //Simulates a remote call
-        return subordinateParticipant.commit();
+        return remoteSubordinateParticipant.commit();
     }
 
     @Override
@@ -219,7 +219,7 @@ public class SubordinateParticipantStub extends AbstractRecord {
 
         log();
         //Simulates a remote call
-        int result = subordinateParticipant.prepare();
+        int result = remoteSubordinateParticipant.prepare();
 
         if (failAfterSubordinatePrepare) {
             System.exit(1);
