@@ -27,6 +27,18 @@ In particular, observe that the Subordinate Transaction was told to commit, but 
     ConfigParticipant:childConfigService:CRASH:topLevelCommit
     Server simulated a crash, as expected
 
+You can take a look at the object store to see the transaction logs for the Root and Subordinate Transactions:
+
+    tree target/object-store
+    target/object-store
+    └── ShadowNoFileLockStore
+        └── defaultStore
+            └── StateManager
+                ├── RootTransaction
+                │   └── 0_ffffac118223_df05_522dda69_0
+                └── SubordinateTransaction
+                    └── 0_ffffac118223_df05_522dda69_3
+
 Now run the example in recovery mode:
 
     mvn install exec:java -Dexec.mainClass="io.narayana.txmsc.SubordinateRecoveryExample" -Dexec.classpathScope="test" -DskipTests -Dexec.args=--recover
