@@ -20,7 +20,10 @@ import java.util.Vector;
  * This class is base class for plug-in modules for the recovery manager.
  * It is responsible for recovering failed subclasses of BasicAction transactions.
  *
- * It should live in the Narayana code-base once we are sure it is needed.
+ * TO BE CONFIRMED:
+ * This class could live in the Narayana code-base once we are sure it is needed. It is a fork
+ * of AtomicActionRecoveryModule but appears to define behavior that could be considered
+ * generic to BasicAction too.
 */
 
 //TODO: loggers still refer to AtomicAction.
